@@ -18,7 +18,7 @@ class ViewPage(UserPassesTestMixin, generic.DetailView):
         if not self.test_page_perms():
             return False
         o = self.get_object()
-        if o.achievement and self.request.user:
+        if o.achievement and self.request.user.is_authenticated:
             give_this_achievement_once(self.request.user.member, o.achievement, request=self.request)
         return True
 
