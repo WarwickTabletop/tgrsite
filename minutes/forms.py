@@ -1,10 +1,12 @@
 from django.forms import ModelForm, Textarea, ChoiceField
+from django.urls import reverse_lazy
 from django.utils.functional import lazy
 
 from .models import Meeting, Folder
 
 MD_INPUT = {
-    'class': 'markdown-input'
+    'class': 'markdown-input',
+    'data-endpoint': reverse_lazy('utilities:preview_newsletter'),
 }
 
 
