@@ -1,6 +1,7 @@
 from django.forms import Form, ModelForm, Textarea, DateField, ModelMultipleChoiceField, SelectDateWidget, CharField
 from django.urls import reverse_lazy
 
+from users.models import Member
 from .models import Election, Candidate
 
 MD_INPUT_SAFE = {
@@ -30,6 +31,20 @@ class CandidateForm(ModelForm):
 
 class IDTicketForm(Form):
     ids = CharField(help_text="A list of whitespace separated uni-ids", widget=Textarea(), label="IDs")
+    elections = ModelMultipleChoiceField(Election.objects.all())
+
+
+class UsernameTicketForm(Form):
+    ids = CharField(help_text="A list of whitespace separated usernames", widget=Textarea(), label="Usernames")
+    elections = ModelMultipleChoiceField(Election.objects.all())
+
+
+class AllTicketForm(Form):
+    elections = ModelMultipleChoiceField(Election.objects.all())
+
+
+class MemberTicketForm(Form):
+    members = ModelMultipleChoiceField(Member.objects.all())
     elections = ModelMultipleChoiceField(Election.objects.all())
 
 

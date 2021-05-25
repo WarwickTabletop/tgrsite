@@ -12,8 +12,9 @@ from django.shortcuts import get_object_or_404, HttpResponseRedirect, reverse
 
 from users.permissions import PERMS
 
-from users.models import Membership
-from .forms import ElectionForm, CandidateForm, DateTicketForm, IDTicketForm
+from users.models import Membership, Member
+from .forms import ElectionForm, CandidateForm, DateTicketForm, IDTicketForm, UsernameTicketForm, AllTicketForm, \
+    MemberTicketForm
 from .models import Election, STVVote, STVPreference, FPTPVote, APRVVote, Candidate, Ticket, Vote, STVResult
 from .stv import Election as StvCalculator
 
@@ -71,6 +72,49 @@ class DateTicketView(PermissionRequiredMixin, FormView):
         for membership in Membership.objects.filter(checked__lte=form.cleaned_data['date']):
             for election in form.cleaned_data['elections']:
                 Ticket.objects.get_or_create(member_id=membership.member_id, election=election)
+        return super().form_valid(form)
+
+
+class AllTicketView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.add_ticket
+    form_class = AllTicketForm
+    template_name = "votes/tickets.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        for member in Member.objects.filter(equiv_user__is_active=True):
+            for election in form.cleaned_data['elections']:
+                Ticket.objects.get_or_create(member_id=member.id, election=election)
+        return super().form_valid(form)
+
+
+class UsernameTicketView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.add_ticket
+    form_class = UsernameTicketForm
+    template_name = "votes/tickets.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        for username in form.cleaned_data['ids'].split():
+            try:
+                member = Member.objects.get(equiv_user__username__iexact=username.strip())
+                for election in form.cleaned_data['elections']:
+                    Ticket.objects.get_or_create(member_id=member.id, election=election)
+            except Member.DoesNotExist:
+                pass
+        return super().form_valid(form)
+
+
+class UserTicketView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.add_ticket
+    form_class = MemberTicketForm
+    template_name = "votes/tickets.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        for member in form.cleaned_data['members']:
+            for election in form.cleaned_data['elections']:
+                Ticket.objects.get_or_create(member_id=member.id, election=election)
         return super().form_valid(form)
 
 
