@@ -55,7 +55,7 @@
 
         </div>
         <div class="card-body">
-            <div class="card-text markdown-text">{{ object.body|parse_md }}</div>
+            <div class="card-text markdown-text">{{ object.body|parse_md_safe }}</div>
         </div>
     </div>
 
