@@ -137,20 +137,17 @@ class Delete(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, gener
         return can_manage(self.request.user.member, rpg)
 
 
-# possible TODO: consider if better via UserPassesTestMixin
-class Notify(LoginRequiredMixin, generic.View):
+class Notify(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
+        self.rpg = None
         super().__init__(**kwargs)
+    
+    def test_func(self):
+        self.rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
+        return can_manage(self.request.user.member, self.rpg) and not self.rpg.sent_notif
 
     def post(self, request, *args, **kwargs):
-        rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
-
-        if not can_manage(self.request.user.member, rpg):
-            add_message(self.request, messages.WARNING, "You cannot set up a notification for that event!")
-        elif rpg.sent_notif:
-            add_message(self.request, messages.WARNING, "You cannot send another notification for that event!")
-        else:
-            notify_rpg(rpg, self.request)
+        notify_rpg(self.rpg, self.request)
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
