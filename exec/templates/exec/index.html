@@ -1,5 +1,6 @@
 {% extends 'tgrsite/main.html' %}
 {% load markdown_tags %}
+{% load property_tags %}
 {% block title %}
     Exec page
 {% endblock %}
@@ -14,7 +15,7 @@
 {% endblock %}
 
 {% block body %}
-    {{ exec_history|parse_md_safe }}
+    {% text_setting "exec_history" as history %}{{ history|parse_md_safe }}
     <ul class="list-unstyled">
         {% for role in execs %}
             {% if role.incumbent %}
