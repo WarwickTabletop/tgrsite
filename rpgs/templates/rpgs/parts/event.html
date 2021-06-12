@@ -108,7 +108,8 @@
                 <form id="event_notify" action="{% url "rpgs:notify" rpg.pk %}" method="post">
                     {% csrf_token %}
                 </form>
-                <button form="event_notify" class="btn btn-outline-success" href="{% url "rpgs:notify" rpg.pk %}"><i
+                <button type="submit" form="event_notify" class="btn btn-outline-success" href="{% url "rpgs:notify" rpg.pk %}" 
+                    data-toggle="tooltip" title="Notify everyone on the website and Discord."><i
                         class="fas fa-exclamation-triangle"></i> <span>Notify Everyone</span></button>
                 {% endif %}
             </div>
