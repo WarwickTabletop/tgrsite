@@ -60,6 +60,27 @@ class Detail(generic.DetailView):
     context_object_name = 'rpg'
 
 
+def notify_rpg(object, request):
+    url = reverse('rpgs:detail', kwargs={'pk': object.id})
+    notify_everybody(NotifType.RPG_CREATE, f"A new event '{object.title}' is available for signup.",
+                        url, merge_key=object.id)
+    discord_message = (f"A new event **{object.title}** is now available for signup!\n"
+                        f"**Available slots**: {object.players_wanted}")
+    if object.system:
+        discord_message += f"\n**System**: {object.system}"
+    if object.timeslot:
+        discord_message += f"\n**Timeslot**: {object.timeslot}"
+    if object.location:
+        discord_message += f"\n**Location**: {object.location}"
+    discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
+
+    notify_discord(discord_message, request.user.member)
+    give_achievement_once(request.user.member, "first_event", request=request)
+    if Rpg.objects.filter(creator=request.user.member).count() >= 5:
+        give_achievement_once(request.user.member, "five_events", request=request)
+    object.sent_notif = True
+    object.save()
+
 class Create(LoginRequiredMixin, generic.CreateView):
     template_name = 'rpgs/create.html'
     model = Rpg
@@ -74,23 +95,8 @@ class Create(LoginRequiredMixin, generic.CreateView):
         self.object.game_masters.add(self.request.user.member)
         self.object.save()
         add_message(self.request, messages.SUCCESS, "Event successfully created")
-        url = reverse('rpgs:detail', kwargs={'pk': self.object.id})
-        notify_everybody(NotifType.RPG_CREATE, f"A new event '{form.cleaned_data['title']}' is available for signup.",
-                         url, merge_key=self.object.id)
-        discord_message = (f"A new event **{form.cleaned_data['title']}** is now available for signup!\n"
-                           f"**Available slots**: {self.object.players_wanted}")
-        if self.object.system:
-            discord_message += f"\n**System**: {self.object.system}"
-        if self.object.timeslot:
-            discord_message += f"\n**Timeslot**: {self.object.timeslot}"
-        if self.object.location:
-            discord_message += f"\n**Location**: {self.object.location}"
-        discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
-
-        notify_discord(discord_message, self.request.user.member)
-        give_achievement_once(form.instance.creator, "first_event", request=self.request)
-        if Rpg.objects.filter(creator=form.instance.creator).count() >= 5:
-            give_achievement_once(form.instance.creator, "five_events", request=self.request)
+        if self.object.sent_notif:
+            notify_rpg(self.object, self.request)
         return response
 
 
@@ -129,6 +135,22 @@ class Delete(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, gener
     def test_func(self):
         rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
         return can_manage(self.request.user.member, rpg)
+
+
+class Notify(LoginRequiredMixin, generic.View):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
+
+        if not can_manage(self.request.user.member, rpg):
+            add_message(self.request, messages.WARNING, "You cannot set up a notification for that event!")
+        elif rpg.sent_notif:
+            add_message(self.request, messages.WARNING, "You cannot send another notification for that event!")
+        else:
+            notify_rpg(rpg, self.request)
+        return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
 class Join(LoginRequiredMixin, generic.View):

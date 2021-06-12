@@ -16,7 +16,7 @@ class Page(models.Model):
     title = models.CharField(max_length=64, blank=True, help_text='Page title to display in titlebar of browser/tab')
     page_title = models.CharField(max_length=64, blank=True, help_text='Title to appear at the top of the page')
     breadcrumb_child = models.CharField(max_length=64, blank=True, help_text='Child element of the breadcrumb list')
-    body = models.TextField(max_length=16384, blank=True, help_text='Page contents')
+    body = models.TextField(max_length=65536, blank=True, help_text='Page contents')
     head = models.TextField(max_length=16384, blank=True, help_text='Custom HTML to go in the <head> of the page')
     css = models.TextField(max_length=16384, blank=True, help_text='Custom CSS styles for the page')
     leftbar = models.TextField(max_length=16384, blank=True, help_text='Left sidebar contents (use cards)')

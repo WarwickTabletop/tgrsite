@@ -104,8 +104,17 @@
                         {% endif %}
                     </div>
                 {% endif %}
+                {% if manager and not rpg.sent_notif %}
+                <form id="event_notify" action="{% url "rpgs:notify" rpg.pk %}" method="post">
+                    {% csrf_token %}
+                </form>
+                <button form="event_notify" class="btn btn-outline-success" href="{% url "rpgs:notify" rpg.pk %}"><i
+                        class="fas fa-exclamation-triangle"></i> <span>Notify Everyone</span></button>
+                {% endif %}
             </div>
             {% if manager %}
+                
+
                 <form method="post" class="d-flex flex-grow-1 mx-0 mb-2 mb-sm-0 ml-sm-3" id="event_add_to"
                       action="{% url "rpgs:add_to" rpg.pk %}">
                     <div class="form-group d-flex flex-grow-1 m-0 justify-content-around align-items-center">
