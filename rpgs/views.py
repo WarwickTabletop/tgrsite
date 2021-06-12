@@ -137,6 +137,7 @@ class Delete(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, gener
         return can_manage(self.request.user.member, rpg)
 
 
+# possible TODO: consider if better via UserPassesTestMixin
 class Notify(LoginRequiredMixin, generic.View):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
