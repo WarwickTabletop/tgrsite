@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block body %}
+    {{ exec_history|parse_md_safe }}
     <ul class="list-unstyled">
         {% for role in execs %}
             {% if role.incumbent %}

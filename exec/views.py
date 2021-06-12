@@ -3,6 +3,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, UpdateView
+from website_settings.models import TextProperty
+
 
 from .forms import ExecBioForm
 from .models import ExecRole
@@ -17,6 +19,8 @@ class Index(ListView):
     def get_context_data(self, *args, **kwargs):
         ctxt = super().get_context_data(*args, **kwargs)
         ctxt['resp'] = 'full' in self.request.GET
+        history, d = TextProperty.objects.get_or_create(key='exec_history', defaults="")
+        ctxt['exec_history'] = str(history.value)
         return ctxt
 
 
