@@ -3,6 +3,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import ListView, UpdateView
+from website_settings.models import TextProperty
+
 
 from .forms import ExecBioForm
 from .models import ExecRole

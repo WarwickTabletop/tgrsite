@@ -93,8 +93,16 @@
         {% endif %}
         <div class="card-footer d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
             <div class="flex-grow-1 mb-0">
-                {% if user.member not in rpg.game_masters.all %}
-                    <div class="btn-group btn-block">
+                <div class="btn-group btn-block">
+                    {% if manager and not rpg.sent_notif %}
+                    <form id="event_notify" action="{% url "rpgs:notify" rpg.pk %}" method="post">
+                        {% csrf_token %}
+                    </form>
+                    <button type="submit" form="event_notify" class="btn btn-outline-success" href="{% url "rpgs:notify" rpg.pk %}" 
+                        data-toggle="tooltip" title="Notify everyone on the website and Discord."><i
+                            class="fas fa-exclamation-triangle"></i> <span>Notify Everyone</span></button>
+                    {% endif %}
+                    {% if user.member not in rpg.game_masters.all %}
                         {% if user.member in rpg.members.all %}
                             <button form="event_leave" type="submit" class="btn btn-outline-warning">Leave</button>
                         {% else %}
@@ -102,8 +110,8 @@
                                 <button form="event_join" type="submit" class="btn btn-outline-success">Join</button>
                             {% endif %}
                         {% endif %}
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
             {% if manager %}
                 <form method="post" class="d-flex flex-grow-1 mx-0 mb-2 mb-sm-0 ml-sm-3" id="event_add_to"

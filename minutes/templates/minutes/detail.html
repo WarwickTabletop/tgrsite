@@ -37,12 +37,12 @@
         <div class="btn-group btn-block mb-3">
             {% if prev %}
                 <a class="btn btn-outline-primary" href="{{ prev.get_absolute_url }}"><i
-                        class="fas fa-angle-left"></i><span class="sr-only">Previous</span></a>
+                        class="fas fa-angle-left"></i> <span>Previous</span></a>
             {% endif %}
 
             {% if next %}
-                <a class="btn btn-outline-primary" href="{{ next.get_absolute_url }}"><i
-                        class="fas fa-angle-right"></i><span class="sr-only">Next</span></a>
+                <a class="btn btn-outline-primary" href="{{ next.get_absolute_url }}"><span>Next</span> <i
+                        class="fas fa-angle-right"></i></a>
             {% endif %}
         </div>
     {% endif %}
