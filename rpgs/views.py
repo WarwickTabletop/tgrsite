@@ -60,7 +60,7 @@ class Detail(generic.DetailView):
     context_object_name = 'rpg'
 
 
-def notify_rpg(object, request):
+def notify_rpg(object):
     url = reverse('rpgs:detail', kwargs={'pk': object.id})
     notify_everybody(NotifType.RPG_CREATE, f"A new event '{object.title}' is available for signup.",
                         url, merge_key=object.id)
@@ -74,10 +74,7 @@ def notify_rpg(object, request):
         discord_message += f"\n**Location**: {object.location}"
     discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
 
-    notify_discord(discord_message, request.user.member)
-    give_achievement_once(request.user.member, "first_event", request=request)
-    if Rpg.objects.filter(creator=request.user.member).count() >= 5:
-        give_achievement_once(request.user.member, "five_events", request=request)
+    notify_discord(discord_message, object.creator)
     object.sent_notif = True
     object.save()
 
@@ -95,8 +92,11 @@ class Create(LoginRequiredMixin, generic.CreateView):
         self.object.game_masters.add(self.request.user.member)
         self.object.save()
         add_message(self.request, messages.SUCCESS, "Event successfully created")
+        give_achievement_once(self.request.user.member, "first_event", request=self.request)
+        if Rpg.objects.filter(creator=self.request.user.member).count() >= 5:
+            give_achievement_once(self.request.user.member, "five_events", request=self.request)
         if self.object.sent_notif:
-            notify_rpg(self.object, self.request)
+            notify_rpg(self.object)
         return response
 
 
@@ -147,7 +147,7 @@ class Notify(LoginRequiredMixin, UserPassesTestMixin, generic.View):
         return can_manage(self.request.user.member, self.rpg) and not self.rpg.sent_notif
 
     def post(self, request, *args, **kwargs):
-        notify_rpg(self.rpg, self.request)
+        notify_rpg(self.rpg)
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
