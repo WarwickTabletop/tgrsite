@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <h4 class="card-title text-center text-sm-left">
                             {{ role.role_title }} -
-                            {% include "parts/render_member.html" with member=role.incumbent fullname=True %}
+                            {% include "parts/render_member.html" with member=role.incumbent fullname=True nobadge=True %}
                             {% if request.user.member == role.incumbent %}
                                 <a class="btn btn-outline-success" href="{% url 'exec:exec_editbio' role.id %}"><i
                                         class="fas fa-pencil-alt"></i></a>

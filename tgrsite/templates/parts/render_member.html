@@ -3,7 +3,7 @@
     {% if member.equiv_user.get_full_name and not short %}
         <span class="text-nowrap">{% if fullname %}{{ member.equiv_user.get_full_name }}{% else %}{{ member.equiv_user.first_name }}{% endif %}</span>
         <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %}
-        <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a> {% if member.badge_type %}
+        <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a> {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %} )</span>
     {% else %}
@@ -12,7 +12,7 @@
             <img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">
         {% endif %}
         <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a>
-        {% if member.badge_type %}
+        {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
         </span>
@@ -20,7 +20,8 @@
 {% else %}
     {% if member.equiv_user.get_full_name and not short %}
         <span class="text-nowrap">{% if fullname %}{{ member.equiv_user.get_full_name }}{% else %}{{ member.equiv_user.first_name }}{% endif %}</span>
-        <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %} {{ member }} {% if member.badge_type %}
+        <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %} {{ member }}
+            {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %} )</span>
     {% else %}
@@ -28,7 +29,7 @@
         {% if not avatarless %}
             <img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">
         {% endif %}
-        {{ member }}{% if member.badge_type %}
+        {{ member }}{% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
         </span>
