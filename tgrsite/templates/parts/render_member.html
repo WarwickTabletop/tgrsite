@@ -5,7 +5,7 @@
         <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %}
         <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a> {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
-        {% endif %} )</span>
+        {% endif %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
     {% else %}
         <span class="text-nowrap">
             {% if not avatarless %}
@@ -15,6 +15,7 @@
         {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
+        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}})</span>{% endif %}
         </span>
     {% endif %}
 {% else %}
@@ -23,7 +24,7 @@
         <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %} {{ member }}
             {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
-        {% endif %} )</span>
+        {% endif %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
     {% else %}
         <span class="text-nowrap">
         {% if not avatarless %}
@@ -32,6 +33,7 @@
         {{ member }}{% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
+        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}})</span>{% endif %}
         </span>
     {% endif %}
 
