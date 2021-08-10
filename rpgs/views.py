@@ -75,7 +75,8 @@ def notify_rpg(object):
     discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
 
     notify_discord(discord_message, object.creator)
-    object.sent_notif = True
+    object.published = True
+    object.unlisted = False
     object.save()
 
 class Create(LoginRequiredMixin, generic.CreateView):
@@ -90,12 +91,13 @@ class Create(LoginRequiredMixin, generic.CreateView):
             tag, new = Tag.objects.get_or_create(name=i)
             self.object.tags.add(tag)
         self.object.game_masters.add(self.request.user.member)
+        self.object.unlisted = True
         self.object.save()
         add_message(self.request, messages.SUCCESS, "Event successfully created")
         give_achievement_once(self.request.user.member, "first_event", request=self.request)
         if Rpg.objects.filter(creator=self.request.user.member).count() >= 5:
             give_achievement_once(self.request.user.member, "five_events", request=self.request)
-        if self.object.sent_notif:
+        if self.object.published:
             notify_rpg(self.object)
         return response
 
@@ -137,14 +139,14 @@ class Delete(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, gener
         return can_manage(self.request.user.member, rpg)
 
 
-class Notify(LoginRequiredMixin, UserPassesTestMixin, generic.View):
+class Publish(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
         self.rpg = None
         super().__init__(**kwargs)
     
     def test_func(self):
         self.rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
-        return can_manage(self.request.user.member, self.rpg) and not self.rpg.sent_notif
+        return can_manage(self.request.user.member, self.rpg) and not self.rpg.published
 
     def post(self, request, *args, **kwargs):
         notify_rpg(self.rpg)

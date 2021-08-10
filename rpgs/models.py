@@ -32,9 +32,8 @@ class Rpg(models.Model):
     member_only = models.BooleanField(default=False,
                                       help_text="Require users to be verified members to sign up")
     messaging_thread = models.ForeignKey(MessageThread, on_delete=models.SET_NULL, null=True, blank=True)
-    sent_notif = models.BooleanField('Should publishing this event notify everyone?', default=True,
-                                      help_text="It is recommended that this should be ticked, since notifying members will help you get players.<br>" +
-                                      "If you do not tick this, you can choose to notify everyone later")
+    published = models.BooleanField('Publish this event immediately.', default=True,
+                                      help_text="If you do not tick this, your event will be saves as a draft for you to publish later.")
 
     def __str__(self):
         return self.title
