@@ -2,10 +2,12 @@
 {% if not nolink %} {# double negative to change default case #}
     {% if member.equiv_user.get_full_name and not short %}
         <span class="text-nowrap">{% if fullname %}{{ member.equiv_user.get_full_name }}{% else %}{{ member.equiv_user.first_name }}{% endif %}</span>
-        <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %}
-        <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a> {% if member.badge_type and not nobadge %}
-            <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
-        {% endif %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
+        <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %} 
+        {% spaceless %}
+        <a class="{{ link_class }}" href="{% url 'users:user' member.id %}">{{ member }}</a>{% comment %}I hate the fact that you have to use comments to do non-rendering linebreaks
+        {% endcomment %}{% if member.badge_type and not nobadge %}<i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>{% endif %}{% comment %}
+        {% endcomment %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
+        {% endspaceless %}
     {% else %}
         <span class="text-nowrap">
             {% if not avatarless %}
@@ -15,16 +17,17 @@
         {% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
-        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}})</span>{% endif %}
+        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}} )</span>{% endif %}
         </span>
     {% endif %}
 {% else %}
     {% if member.equiv_user.get_full_name and not short %}
         <span class="text-nowrap">{% if fullname %}{{ member.equiv_user.get_full_name }}{% else %}{{ member.equiv_user.first_name }}{% endif %}</span>
         <span class="text-nowrap"> ( {% if not avatarless %}<img class="inline-gravatar" src="{{ member.gravatar }}" alt="Avatar for {{ member }}">{% endif %} {{ member }}
-            {% if member.badge_type and not nobadge %}
-            <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
-        {% endif %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
+        {% spaceless %}
+        {% if member.badge_type and not nobadge %}<i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>{% endif %}{% comment %}
+        {% endcomment %}{% if discord and member.discord %}, <i class="fab fa-fw fa-discord"></i>{{ member.discord }}{% endif %} )</span>
+        {% endspaceless %}
     {% else %}
         <span class="text-nowrap">
         {% if not avatarless %}
@@ -33,7 +36,7 @@
         {{ member }}{% if member.badge_type and not nobadge %}
             <i class="{{ member.badge_icon }}" title="{{ member.badge_title }}"></i>
         {% endif %}
-        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}})</span>{% endif %}
+        {% if discord and member.discord %}<span>(<i class="fab fa-fw fa-discord"></i>{{member.discord}} )</span>{% endif %}
         </span>
     {% endif %}
 
