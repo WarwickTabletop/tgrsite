@@ -1,9 +1,27 @@
 from django.db import models
 from django.core import validators
 from django.shortcuts import reverse
+from django.db.models import Q
+from typing import Optional
 
 from users.models import Member
 from messaging.models import MessageThread
+
+class RpgManager(models.Manager):
+    def accessible(self, member : Optional[Member]):
+        if member:
+            if member.equiv_user.has_perm("rpgs.view_rpg"):
+                return self.all()
+            return self.filter(Q(published=True) | Q(creator__contains=member) | Q(members__contains=member))
+        return self.filter(published=True)
+
+    def visible(self, member : Optional[Member]):
+        qs = self.filter(unlisted=False)
+        if member:
+            if member.equiv_user.has_perm("rpgs.view_rpg"):
+                return qs
+            return qs.filter(Q(published=True) | Q(creator__contains=member) | Q(members__contains=member))
+        return qs.filter(published=True)
 
 
 # Create your models here.
@@ -33,7 +51,8 @@ class Rpg(models.Model):
                                       help_text="Require users to be verified members to sign up")
     messaging_thread = models.ForeignKey(MessageThread, on_delete=models.SET_NULL, null=True, blank=True)
     published = models.BooleanField('Publish this event immediately.', default=True,
-                                      help_text="If you do not tick this, your event will be saves as a draft for you to publish later.")
+                                      help_text="If you do not tick this, your event will be saved as a draft for you to publish later.")
+    objects = RpgManager()
 
     def __str__(self):
         return self.title

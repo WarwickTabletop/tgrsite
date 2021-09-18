@@ -20,6 +20,7 @@ from .templatetags.rpg_tags import can_manage
 from users.models import Member
 from users.achievements import give_achievement_once
 
+# TODO: make events accessible only if they're accessible
 
 class Index(generic.ListView):
     template_name = 'rpgs/index.html'
@@ -29,7 +30,7 @@ class Index(generic.ListView):
 
     def get_queryset(self):
         Rpg.objects.filter(is_in_the_past=False, finishes__lt=timezone.now()).update(is_in_the_past=True)
-        queryset = Rpg.objects.filter(unlisted=False)
+        queryset = Rpg.objects.visible(self.request.user.member)
         if self.request.GET.get('tag', False):
             queryset = queryset.filter(tags__name__iexact=self.request.GET['tag'])
         if self.request.GET.get('user', False):
@@ -51,7 +52,7 @@ class Index(generic.ListView):
         else:
             queryset = queryset.filter(full__exact=0)
 
-        return queryset.order_by('-pinned', 'full', '-created_at')
+        return queryset.order_by('published', '-pinned', 'full', '-created_at')
 
 
 class Detail(generic.DetailView):
@@ -76,7 +77,6 @@ def notify_rpg(object):
 
     notify_discord(discord_message, object.creator)
     object.published = True
-    object.unlisted = False
     object.save()
 
 class Create(LoginRequiredMixin, generic.CreateView):
@@ -91,7 +91,6 @@ class Create(LoginRequiredMixin, generic.CreateView):
             tag, new = Tag.objects.get_or_create(name=i)
             self.object.tags.add(tag)
         self.object.game_masters.add(self.request.user.member)
-        self.object.unlisted = True
         self.object.save()
         add_message(self.request, messages.SUCCESS, "Event successfully created")
         give_achievement_once(self.request.user.member, "first_event", request=self.request)
