@@ -16,11 +16,14 @@ from notifications.models import NotifType
 from notifications.utils import notify, notify_everybody, notify_discord
 from .forms import RpgForm, RpgCreateForm
 from .models import Rpg, Tag
-from .templatetags.rpg_tags import can_manage
+from .templatetags.rpg_tags import can_manage, can_access
 from users.models import Member
 from users.achievements import give_achievement_once
 
-# TODO: make events accessible only if they're accessible
+def member_or_none(req):
+    if not req.user.is_anonymous:
+        return req.user.member
+    return None
 
 class Index(generic.ListView):
     template_name = 'rpgs/index.html'
@@ -30,7 +33,8 @@ class Index(generic.ListView):
 
     def get_queryset(self):
         Rpg.objects.filter(is_in_the_past=False, finishes__lt=timezone.now()).update(is_in_the_past=True)
-        queryset = Rpg.objects.visible(self.request.user.member)
+        member = member_or_none(self.request)
+        queryset = Rpg.objects.visible(member)
         if self.request.GET.get('tag', False):
             queryset = queryset.filter(tags__name__iexact=self.request.GET['tag'])
         if self.request.GET.get('user', False):
@@ -55,10 +59,14 @@ class Index(generic.ListView):
         return queryset.order_by('published', '-pinned', 'full', '-created_at')
 
 
-class Detail(generic.DetailView):
+class Detail(UserPassesTestMixin, generic.DetailView):
     template_name = 'rpgs/detail.html'
     model = Rpg
     context_object_name = 'rpg'
+
+    def test_func(self):
+        rpg = get_object_or_404(Rpg, id=self.kwargs['pk'])
+        return can_access(member_or_none(self.request), rpg)
 
 
 def notify_rpg(object):
@@ -152,9 +160,13 @@ class Publish(LoginRequiredMixin, UserPassesTestMixin, generic.View):
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
-class Join(LoginRequiredMixin, generic.View):
+class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def test_func(self):
+        rpg = get_object_or_404(Rpg, id=self.kwargs['pk'])
+        return can_access(member_or_none(self.request), rpg)
 
     def post(self, request, *args, **kwargs):
         rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])

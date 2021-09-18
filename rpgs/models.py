@@ -8,19 +8,12 @@ from users.models import Member
 from messaging.models import MessageThread
 
 class RpgManager(models.Manager):
-    def accessible(self, member : Optional[Member]):
-        if member:
-            if member.equiv_user.has_perm("rpgs.view_rpg"):
-                return self.all()
-            return self.filter(Q(published=True) | Q(creator__contains=member) | Q(members__contains=member))
-        return self.filter(published=True)
-
     def visible(self, member : Optional[Member]):
         qs = self.filter(unlisted=False)
         if member:
             if member.equiv_user.has_perm("rpgs.view_rpg"):
                 return qs
-            return qs.filter(Q(published=True) | Q(creator__contains=member) | Q(members__contains=member))
+            return qs.filter(Q(published=True) | Q(creator=member) | Q(members=member) | Q(game_masters=member))
         return qs.filter(published=True)
 
 
