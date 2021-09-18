@@ -207,7 +207,9 @@ class Leave(LoginRequiredMixin, generic.View):
                    'User {} left your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
             add_message(self.request, messages.SUCCESS, "You have successfully left that event")
-        return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+        if rpg.published:
+            return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+        return HttpResponseRedirect(reverse('rpgs:index'))
 
 
 class Kick(LoginRequiredMixin, UserPassesTestMixin, generic.View):
