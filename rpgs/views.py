@@ -16,10 +16,14 @@ from notifications.models import NotifType
 from notifications.utils import notify, notify_everybody, notify_discord
 from .forms import RpgForm, RpgCreateForm
 from .models import Rpg, Tag
-from .templatetags.rpg_tags import can_manage
+from .templatetags.rpg_tags import can_manage, can_access
 from users.models import Member
 from users.achievements import give_achievement_once
 
+def member_or_none(req):
+    if not req.user.is_anonymous:
+        return req.user.member
+    return None
 
 class Index(generic.ListView):
     template_name = 'rpgs/index.html'
@@ -29,7 +33,8 @@ class Index(generic.ListView):
 
     def get_queryset(self):
         Rpg.objects.filter(is_in_the_past=False, finishes__lt=timezone.now()).update(is_in_the_past=True)
-        queryset = Rpg.objects.filter(unlisted=False)
+        member = member_or_none(self.request)
+        queryset = Rpg.objects.visible(member)
         if self.request.GET.get('tag', False):
             queryset = queryset.filter(tags__name__iexact=self.request.GET['tag'])
         if self.request.GET.get('user', False):
@@ -51,13 +56,17 @@ class Index(generic.ListView):
         else:
             queryset = queryset.filter(full__exact=0)
 
-        return queryset.order_by('-pinned', 'full', '-created_at')
+        return queryset.order_by('published', '-pinned', 'full', '-created_at')
 
 
-class Detail(generic.DetailView):
+class Detail(UserPassesTestMixin, generic.DetailView):
     template_name = 'rpgs/detail.html'
     model = Rpg
     context_object_name = 'rpg'
+
+    def test_func(self):
+        rpg = get_object_or_404(Rpg, id=self.kwargs['pk'])
+        return can_access(member_or_none(self.request), rpg)
 
 
 def notify_rpg(object):
@@ -75,7 +84,7 @@ def notify_rpg(object):
     discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
 
     notify_discord(discord_message, object.creator)
-    object.sent_notif = True
+    object.published = True
     object.save()
 
 class Create(LoginRequiredMixin, generic.CreateView):
@@ -95,7 +104,7 @@ class Create(LoginRequiredMixin, generic.CreateView):
         give_achievement_once(self.request.user.member, "first_event", request=self.request)
         if Rpg.objects.filter(creator=self.request.user.member).count() >= 5:
             give_achievement_once(self.request.user.member, "five_events", request=self.request)
-        if self.object.sent_notif:
+        if self.object.published:
             notify_rpg(self.object)
         return response
 
@@ -137,23 +146,27 @@ class Delete(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, gener
         return can_manage(self.request.user.member, rpg)
 
 
-class Notify(LoginRequiredMixin, UserPassesTestMixin, generic.View):
+class Publish(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
         self.rpg = None
         super().__init__(**kwargs)
     
     def test_func(self):
         self.rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
-        return can_manage(self.request.user.member, self.rpg) and not self.rpg.sent_notif
+        return can_manage(self.request.user.member, self.rpg) and not self.rpg.published
 
     def post(self, request, *args, **kwargs):
         notify_rpg(self.rpg)
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
-class Join(LoginRequiredMixin, generic.View):
+class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    def test_func(self):
+        rpg = get_object_or_404(Rpg, id=self.kwargs['pk'])
+        return can_access(member_or_none(self.request), rpg)
 
     def post(self, request, *args, **kwargs):
         rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
@@ -194,7 +207,9 @@ class Leave(LoginRequiredMixin, generic.View):
                    'User {} left your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
             add_message(self.request, messages.SUCCESS, "You have successfully left that event")
-        return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+        if rpg.published:
+            return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+        return HttpResponseRedirect(reverse('rpgs:index'))
 
 
 class Kick(LoginRequiredMixin, UserPassesTestMixin, generic.View):

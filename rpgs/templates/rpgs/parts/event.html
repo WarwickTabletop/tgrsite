@@ -8,7 +8,7 @@
     <a href="{% url "rpgs:detail" rpg.pk %}"
        class="card-link card-header d-flex flex-column flex-sm-row justify-content-between align-items-center">
         <h5 class="mb-0 text-center text-sm-left">{% if embed and rpg.pinned %}
-            <i class="fas fa-thumbtack"></i> {% endif %}{{ rpg.title }}</h5>
+            <i class="fas fa-thumbtack"></i> {% endif %}{% if not rpg.published %}<span class="badge badge-primary">DRAFT</span> {% endif %}{{ rpg.title }}</h5>
         <div class="d-flex flex-column align-items-center align-items-sm-end">
             <span class="mb-0 text-muted text-center text-sm-right">{{ rpg.timeslot }}</span>
             <span class="mb-0 text-muted text-center text-sm-right">{{ rpg.location }}</span>
@@ -94,13 +94,13 @@
         <div class="card-footer d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
             <div class="flex-grow-1 mb-0">
                 <div class="btn-group btn-block">
-                    {% if manager and not rpg.sent_notif %}
-                    <form id="event_notify" action="{% url "rpgs:notify" rpg.pk %}" method="post">
+                    {% if manager and not rpg.published %}
+                    <form id="event_publish" action="{% url "rpgs:publish" rpg.pk %}" method="post">
                         {% csrf_token %}
                     </form>
-                    <button type="submit" form="event_notify" class="btn btn-outline-success" href="{% url "rpgs:notify" rpg.pk %}" 
-                        data-toggle="tooltip" title="Notify everyone on the website and Discord."><i
-                            class="fas fa-exclamation-triangle"></i> <span>Notify Everyone</span></button>
+                    <button type="submit" form="event_publish" class="btn btn-outline-success" href="{% url "rpgs:publish" rpg.pk %}" 
+                        data-toggle="tooltip" title="Make this event public, and notify everyone on the website and Discord."><i
+                            class="fas fa-exclamation-triangle"></i> <span>Publish</span></button>
                     {% endif %}
                     {% if user.member not in rpg.game_masters.all %}
                         {% if user.member in rpg.members.all %}
