@@ -51,7 +51,8 @@ class ProfileView(LoginRequiredMixin, DetailView):
         achievements = get_achievements_with_merged(self.object)
         ctxt.update({'recent_threads': Thread.objects.filter(author__id=pk).order_by('-pub_date')[:3],
                      'recent_responses': Response.objects.filter(author__id=pk).order_by('-pub_date')[:3],
-                     'rpgs': Rpg.objects.filter(game_masters__id=pk, is_in_the_past=False),
+                     'rpgs': Rpg.objects.visible(self.request.user.member).filter(game_masters__id=pk, is_in_the_past=False)
+                        .order_by('published', '-pinned', '-created_at')[:10],
                      'achievements': achievements[:5],
                      'achievement_count': len(achievements),
                      'achievement_total': Achievement.objects.filter(is_fair=True).count()})

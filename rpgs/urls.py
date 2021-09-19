@@ -13,7 +13,7 @@ urlpatterns = [
     path('<int:pk>/delete/', views.Delete.as_view(), name='delete'),
 
     path('<int:pk>/join/', views.Join.as_view(), name='join'),
-    path('<int:pk>/notify/', views.Notify.as_view(), name='notify'),
+    path('<int:pk>/publish/', views.Publish.as_view(), name='publish'),
     path('<int:pk>/leave/', views.Leave.as_view(), name='leave'),
 
     path('<int:pk>/kick/', views.Kick.as_view(), name='kick'),
