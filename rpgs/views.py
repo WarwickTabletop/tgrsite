@@ -46,9 +46,8 @@ class Index(generic.ListView):
                 queryset = queryset.filter(Q(members=user) | Q(creator=user) | Q(game_masters=user)).distinct()
         if not self.request.GET.get('showfinished', False):
             queryset = queryset.filter(is_in_the_past=False)
-        queryset = queryset.annotate(
-            n_remain=ExpressionWrapper(F('players_wanted') - Count('members'), output_field=IntegerField())).annotate(
-            full=Case(When(n_remain=0, then=1), default=0, output_field=IntegerField()))
+        queryset = queryset.annotate(full=Case(When(players_wanted__lte=Count('members'), then=1), default=0,
+                                               output_field=IntegerField()))
         if self.request.GET.get('showfull', False) or not self.request.GET.get('isfilter', False):
             # second filter needed to detect if the filtered form has been submitted
             # as checkbox False is transmitted by omitting the attribute (stupid!)
