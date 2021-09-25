@@ -89,7 +89,7 @@ class RoomLink(models.Model):
 
 
 class SpecialEvent(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=128)
     url = models.URLField(blank=True, max_length=200)
     room = models.CharField(blank=True, max_length=30)
     week = models.SmallIntegerField()
