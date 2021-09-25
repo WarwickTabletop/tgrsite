@@ -23,7 +23,7 @@ class Rpg(models.Model):
                                           help_text="Who is actually running the event")
     title = models.CharField(max_length=64, verbose_name='Name', help_text="The event's name")
     system = models.CharField(max_length=64, blank=True, help_text="The system that is being used")
-    description = models.TextField(max_length=8192, blank=True, help_text="Longform description")
+    description = models.TextField(max_length=32768, blank=True, help_text="Longform description")
     timeslot = models.CharField(max_length=64, blank=True, help_text="The date/time(s) this event will occur")
     location = models.CharField(max_length=64, blank=True, help_text="The location where this event will occur")
     players_wanted = models.PositiveSmallIntegerField(validators=[validators.MinValueValidator(1)])
