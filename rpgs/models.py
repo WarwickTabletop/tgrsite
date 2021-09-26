@@ -7,8 +7,9 @@ from typing import Optional
 from users.models import Member
 from messaging.models import MessageThread
 
+
 class RpgManager(models.Manager):
-    def visible(self, member : Optional[Member]):
+    def visible(self, member: Optional[Member]):
         qs = self.filter(unlisted=False)
         if member:
             if member.equiv_user.has_perm("rpgs.view_rpg"):
@@ -44,7 +45,9 @@ class Rpg(models.Model):
                                       help_text="Require users to be verified members to sign up")
     messaging_thread = models.ForeignKey(MessageThread, on_delete=models.SET_NULL, null=True, blank=True)
     published = models.BooleanField('Publish this event immediately.', default=True,
-                                      help_text="If you do not tick this, your event will be saved as a draft for you to publish later.")
+                                    help_text="If you do not tick this, your event will be saved as a draft for you to publish later.")
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="children",
+                               help_text="The parent event. Signing up to this event will automatically sign you up to the parent event.")
     objects = RpgManager()
 
     def __str__(self):

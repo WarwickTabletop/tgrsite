@@ -23,6 +23,10 @@ def can_access(member, rpg):
         (member in rpg.members.all()) or member.equiv_user.has_perm('rpgs.view_rpg'))
 
 
+@register.filter
+def has_accessible_children(rpg, member):
+    return any(can_access(member, r) for r in rpg.children.all())
+
 # todo: assignment tag is deprecated
 @register.simple_tag(takes_context=True)
 def is_player(context, rpg):
