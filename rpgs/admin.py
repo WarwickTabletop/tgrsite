@@ -4,10 +4,19 @@ from .models import Rpg, Tag
 
 
 class RpgAdmin(admin.ModelAdmin):
-    autocomplete_fields = ('game_masters','members', 'tags')
+    autocomplete_fields = ('game_masters', 'members', 'tags')
+    fieldsets = (
+        (None, {
+            'fields': ['title', 'system', 'description', 'timeslot', 'location', 'players_wanted', 'finishes',
+                       'is_in_the_past', 'tags']}),
+        ("Users", {'fields': ['creator', 'game_masters', 'members', 'messaging_thread']}),
+        ("Admin", {'fields': ['pinned', 'unlisted', 'discord', 'member_only', 'published']}),
+    )
+
 
 class TagAdmin(admin.ModelAdmin):
     search_fields = ('name',)
+
 
 admin.site.register(Rpg, RpgAdmin)
 admin.site.register(Tag, TagAdmin)
