@@ -46,6 +46,11 @@
                 {% endfor %}
             </h6>
         {% endif %}
+        {% if rpg.child_signup_only and user.member in rpg.members.all and not user.member|has_signed_up_to_child:rpg %}
+            <p class="alert-warning alert card-text mt-2">
+                <i class="fas fa-exclamation-triangle"></i> You have signed up to this event but aren't signed up to a child event. Please select one from the list below to be considered signed up.
+            </p>
+        {% endif %}
         <p class="card-text mb-2">
             <strong>Players:</strong>
             <span class="badge badge-pill badge-primary">{{ rpg.members.count }}/{{ rpg.players_wanted }}</span>
@@ -67,6 +72,11 @@
                     <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to the parent event
                 </p>
             {% endif %}
+            {% if rpg.child_signup_only %}
+                <p class="alert-primary alert card-text">
+                    <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to a child event to be considered signed up. Please select one from the list below.
+                </p>
+            {% endif %}
         {% endif %}
         {% if not embed %}
             {% if rpg.members.all %}
@@ -75,6 +85,12 @@
                     <li class="list-group-item d-flex flex-row justify-content-between align-items-center">
                         {% include "parts/render_member.html" with avatarless=True %}
                         {% if manager %}
+                            <div class="d-flex flex-row align-items-center">
+                            {% if rpg.child_signup_only and not member|has_signed_up_to_child:rpg %}
+                                <p class="m-0 mr-2 btn btn-sm btn-outline-warning" data-toggle="tooltip" title="Not Signed up to child event">
+                                    <i class="fas fa-exclamation-triangle"></i><span class="sr-only">Not Signed up to child event</span>
+                                </p>
+                            {% endif %}
                             <form method="POST" action="{% url "rpgs:kick" rpg.pk %}">
                                 {% csrf_token %}
                                 <input type="hidden" value="{{ rpg.pk }}" name="id">
@@ -84,6 +100,7 @@
                                     <i class="fas fa-times"></i><span class="sr-only">Kick User</span>
                                 </button>
                             </form>
+                            </div>
                         {% endif %}
                     </li>
                 {% endfor %}
@@ -143,7 +160,7 @@
                         {% if user.member in rpg.members.all %}
                             <button form="event_leave" type="submit" class="btn btn-outline-warning">Leave</button>
                         {% else %}
-                            {% if rpg.members.count < rpg.players_wanted %}
+                            {% if not rpg.child_signup_only and rpg.members.count < rpg.players_wanted %}
                                 <button form="event_join" type="submit" class="btn btn-outline-success">Join</button>
                             {% endif %}
                         {% endif %}

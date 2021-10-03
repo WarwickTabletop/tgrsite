@@ -48,6 +48,10 @@ class Rpg(models.Model):
                                     help_text="If you do not tick this, your event will be saved as a draft for you to publish later.")
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="children",
                                help_text="The parent event. Signing up to this event will automatically sign you up to the parent event.")
+    child_signup_only = models.BooleanField(default=False,
+                                            help_text="Prevent signing up to the event directly. This forces people to signup to at least one of the children events if they want to signup to the main event.")
+    success_message = models.TextField(blank=True,
+                                       help_text="Replace the default success message with a custom one. Only replaces on a direct signup, transitive signups use the default message. Accepts markdown formatting.")
     objects = RpgManager()
 
     def __str__(self):

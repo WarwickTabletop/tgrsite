@@ -11,11 +11,13 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views import generic
 
 from messaging.views import create_group
 from notifications.models import NotifType
 from notifications.utils import notify, notify_everybody, notify_discord
+from templatetags.templatetags.markdown_tags import parse_md_text
 from .forms import RpgForm, RpgCreateForm
 from .models import Rpg, Tag
 from .templatetags.rpg_tags import can_manage, can_access
@@ -196,6 +198,9 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
         elif len(member.discord.strip()) == 0 and rpg.discord:
             add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is being held on discord. "
                                                         "Please add a discord account to your profile and try again.")
+        elif rpg.child_signup_only and base:
+            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} requires you to sign up to a child event. "
+                                                        "Please chose one from the list below and signup there.")
         else:
             if rpg.parent and (member not in rpg.parent.members.all() and member not in rpg.parent.game_masters.all() and rpg.parent.creator != member):
                 # Recursively add users to the event's parents
@@ -205,7 +210,10 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
             notify(rpg.creator, NotifType.RPG_JOIN,
                    'User {} joined your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-            add_message(self.request, messages.SUCCESS, f"You have successfully joined {grammar.this} {descriptor}")
+            if base and rpg.success_message:
+                add_message(self.request, messages.SUCCESS, mark_safe(parse_md_text(rpg.success_message)), extra_tags="alert-bootstrapable")
+            else:
+                add_message(self.request, messages.SUCCESS, f"You have successfully joined {grammar.this} {descriptor}")
             return True
         return False
 
