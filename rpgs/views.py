@@ -184,7 +184,7 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
             descriptor = "event"
             grammar = grammarset('this','that','the','This','That','The')
         else:
-            descriptor = "parent event"
+            descriptor = f"parent event ({rpg.title})"
             grammar = grammarset('a','a','a','A','A','A')
         if member in rpg.members.all() and base:
             add_message(self.request, messages.WARNING, f"You are already in {grammar.this} {descriptor}!")
@@ -196,8 +196,8 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
             add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is only available to current members. "
                                                         "Please verify your membership from your profile and try again.")
         elif len(member.discord.strip()) == 0 and rpg.discord:
-            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is being held on discord. "
-                                                        "Please add a discord account to your profile and try again.")
+            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is being held on Discord. "
+                                                        "Please add a Discord account to your profile and try again.")
         elif rpg.child_signup_only and base:
             add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} requires you to sign up to a child event. "
                                                         "Please chose one from the list below and signup there.")
@@ -227,15 +227,16 @@ class Leave(LoginRequiredMixin, generic.View):
 
         if self.request.user.member not in rpg.members.all():
             add_message(self.request, messages.WARNING, "You are not currently in that event!")
-        if rpg.children.filter(members=self.request.user.member):
-            add_message(self.request, messages.WARNING, "You are signed up to a child event! "
+        child = rpg.children.filter(members=self.request.user.member).first()
+        if child:
+            add_message(self.request, messages.WARNING, f"You are signed up to the child event {child.title}! "
                                                         "Please leave that before leaving this event.")
         else:
             rpg.members.remove(self.request.user.member)
             notify(rpg.creator, NotifType.RPG_JOIN,
                    'User {} left your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-            add_message(self.request, messages.SUCCESS, "You have successfully left that event")
+            add_message(self.request, messages.SUCCESS, f"You have successfully left the event {rpg.title}.")
         if rpg.published:
             return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
         return HttpResponseRedirect(reverse('rpgs:index'))

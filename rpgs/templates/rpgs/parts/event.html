@@ -58,18 +58,18 @@
         {% if not embed %}
             {% if rpg.discord %}
                 <p class="alert-primary alert card-text">
-                    <i class="fas fa-exclamation-triangle"></i> This event requires your account to have a discord
+                    <i class="fas fa-exclamation-triangle"></i> This event requires your account to have a Discord.
                     username
                 </p>
             {% endif %}
             {% if rpg.member_only %}
                 <p class="alert-primary alert card-text">
-                    <i class="fas fa-exclamation-triangle"></i> This event is only open to current members
+                    <i class="fas fa-exclamation-triangle"></i> This event is only open to current members.
                 </p>
             {% endif %}
             {% if rpg.parent %}
                 <p class="alert-primary alert card-text">
-                    <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to the parent event
+                    <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to the parent event, {{ rpg.parent.title }}.
                 </p>
             {% endif %}
             {% if rpg.child_signup_only %}
