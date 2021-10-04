@@ -87,5 +87,11 @@ a.anchor {
   top: 1rem;
 }
 
+.alert-bootstrapable {
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
 @import "tgrsite_newsletter";
 

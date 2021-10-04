@@ -20,7 +20,17 @@ def can_access(member, rpg):
     if not member:
         return False
     return (member == rpg.creator) or (member in list(rpg.game_masters.all()) or
-        (member in rpg.members.all()) or member.equiv_user.has_perm('rpgs.view_rpg'))
+                                       (member in rpg.members.all()) or member.equiv_user.has_perm('rpgs.view_rpg'))
+
+
+@register.filter
+def has_accessible_children(rpg, member):
+    return any(can_access(member, r) for r in rpg.children.all())
+
+
+@register.filter
+def has_signed_up_to_child(member, rpg):
+    return any((member in r.members.all()) for r in rpg.children.all())
 
 
 # todo: assignment tag is deprecated
