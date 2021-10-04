@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.messages import add_message
@@ -9,11 +11,13 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views import generic
 
 from messaging.views import create_group
 from notifications.models import NotifType
 from notifications.utils import notify, notify_everybody, notify_discord
+from templatetags.templatetags.markdown_tags import parse_md_text
 from .forms import RpgForm, RpgCreateForm
 from .models import Rpg, Tag
 from .templatetags.rpg_tags import can_manage, can_access
@@ -170,25 +174,48 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def post(self, request, *args, **kwargs):
         rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
 
-        if self.request.user.member in rpg.members.all():
-            add_message(self.request, messages.WARNING, "You are already in that event!")
-        elif self.request.user.member in rpg.game_masters.all():
-            add_message(self.request, messages.WARNING, "You are running that event!")
-        elif rpg.members.count() >= rpg.players_wanted:
-            add_message(self.request, messages.WARNING, "Sorry, the event is already full")
-        elif not self.request.user.member.is_soc_member and rpg.member_only:
-            add_message(self.request, messages.WARNING, "This event is only available to current members. "
-                                                        "Please verify your membership from your profile and try again.")
-        elif len(self.request.user.member.discord.strip()) == 0 and rpg.discord:
-            add_message(self.request, messages.WARNING, "This event is being held on discord. "
-                                                        "Please add a discord account to your profile and try again.")
+        self.add_user_to_rpg(self.request.user.member, rpg)
+
+        return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+
+    def add_user_to_rpg(self, member, rpg, base=True):
+        grammarset = namedtuple('grammarset', 'this that the This That The')
+        if base:
+            descriptor = "event"
+            grammar = grammarset('this','that','the','This','That','The')
         else:
+            descriptor = f"parent event ({rpg.title})"
+            grammar = grammarset('a','a','a','A','A','A')
+        if member in rpg.members.all() and base:
+            add_message(self.request, messages.WARNING, f"You are already in {grammar.this} {descriptor}!")
+        elif member in rpg.game_masters.all() and base:
+            add_message(self.request, messages.WARNING, f"You are running {grammar.that} {descriptor}!")
+        elif rpg.members.count() >= rpg.players_wanted:
+            add_message(self.request, messages.WARNING, f"Sorry, {grammar.this} {descriptor} is already full")
+        elif not member.is_soc_member and rpg.member_only:
+            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is only available to current members. "
+                                                        "Please verify your membership from your profile and try again.")
+        elif len(member.discord.strip()) == 0 and rpg.discord:
+            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is being held on Discord. "
+                                                        "Please add a Discord account to your profile and try again.")
+        elif rpg.child_signup_only and base:
+            add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} requires you to sign up to a child event. "
+                                                        "Please chose one from the list below and signup there.")
+        else:
+            if rpg.parent and (member not in rpg.parent.members.all() and member not in rpg.parent.game_masters.all() and rpg.parent.creator != member):
+                # Recursively add users to the event's parents
+                if not self.add_user_to_rpg(member, rpg.parent, base=False):
+                    return False
             rpg.members.add(self.request.user.member)
             notify(rpg.creator, NotifType.RPG_JOIN,
                    'User {} joined your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-            add_message(self.request, messages.SUCCESS, "You have successfully joined that event")
-        return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
+            if base and rpg.success_message:
+                add_message(self.request, messages.SUCCESS, mark_safe(parse_md_text(rpg.success_message)), extra_tags="alert-bootstrapable")
+            else:
+                add_message(self.request, messages.SUCCESS, f"You have successfully joined {grammar.this} {descriptor}")
+            return True
+        return False
 
 
 class Leave(LoginRequiredMixin, generic.View):
@@ -200,12 +227,16 @@ class Leave(LoginRequiredMixin, generic.View):
 
         if self.request.user.member not in rpg.members.all():
             add_message(self.request, messages.WARNING, "You are not currently in that event!")
+        child = rpg.children.filter(members=self.request.user.member).first()
+        if child:
+            add_message(self.request, messages.WARNING, f"You are signed up to the child event {child.title}! "
+                                                        "Please leave that before leaving this event.")
         else:
             rpg.members.remove(self.request.user.member)
             notify(rpg.creator, NotifType.RPG_JOIN,
                    'User {} left your game "{}"!'.format(self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-            add_message(self.request, messages.SUCCESS, "You have successfully left that event")
+            add_message(self.request, messages.SUCCESS, f"You have successfully left the event {rpg.title}.")
         if rpg.published:
             return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
         return HttpResponseRedirect(reverse('rpgs:index'))
