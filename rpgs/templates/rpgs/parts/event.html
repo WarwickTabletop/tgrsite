@@ -8,7 +8,8 @@
     <a href="{% url "rpgs:detail" rpg.pk %}"
        class="card-link card-header d-flex flex-column flex-sm-row justify-content-between align-items-center">
         <h5 class="mb-0 text-center text-sm-left">{% if embed and rpg.pinned %}
-            <i class="fas fa-thumbtack"></i> {% endif %}{% if not rpg.published %}<span class="badge badge-dark">DRAFT</span> {% endif %}{{ rpg.title }}</h5>
+            <i class="fas fa-thumbtack"></i> {% endif %}{% if not rpg.published %}
+            <span class="badge badge-dark">DRAFT</span> {% endif %}{{ rpg.title }}</h5>
         <div class="d-flex flex-column align-items-center align-items-sm-end">
             <span class="mb-0 text-muted text-center text-sm-right">{{ rpg.timeslot }}</span>
             <span class="mb-0 text-muted text-center text-sm-right">{{ rpg.location }}</span>
@@ -22,7 +23,13 @@
             </p>
             <em class="card-text">{{ rpg.system }}</em>
         </div>
-
+        {% if not embed and rpg.parent %}
+            <div class="list-group my-2">
+                <a href="{% url "rpgs:detail" rpg.parent.id %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-level-up-alt"></i> Sub-event of {{ rpg.parent.title }}
+                </a>
+            </div>
+        {% endif %}
         <div class="card-text mb-2 markdown-text">
             {% if embed %}
                 {{ rpg.description|parse_md_text|truncatechars_html:512 }}
@@ -31,37 +38,59 @@
             {% endif %}
         </div>
         {% if rpg.game_masters.all %}
-            <p class="card-text mb-0">
-                {% if rpg.is_in_the_past %}Ran{% else %}Run{% endif %} by:
+            <h6 class="card-text mb-0">
+                <strong>{% if rpg.is_in_the_past %}Ran{% else %}Run{% endif %} by:</strong>
                 {% for member in rpg.game_masters.all %}
                     {% include "parts/render_member.html" with avatarless=True %}
                     {% if not forloop.last %}{% if forloop.revcounter0 == 1 %}and{% else %},{% endif %}{% endif %}
                 {% endfor %}
+            </h6>
+        {% endif %}
+        {% if rpg.child_signup_only and user.member in rpg.members.all and not user.member|has_signed_up_to_child:rpg %}
+            <p class="alert-warning alert card-text mt-2">
+                <i class="fas fa-exclamation-triangle"></i> You have signed up to this event but aren't signed up to a child event. Please select one from the list below to be considered signed up.
             </p>
         {% endif %}
         <p class="card-text mb-2">
-            Players:
+            <strong>Players:</strong>
             <span class="badge badge-pill badge-primary">{{ rpg.members.count }}/{{ rpg.players_wanted }}</span>
         </p>
         {% if not embed %}
             {% if rpg.discord %}
                 <p class="alert-primary alert card-text">
-                    <i class="fas fa-exclamation-triangle"></i> This event requires your account to have a discord
-                    username
+                    <i class="fas fa-exclamation-triangle"></i> This event requires your account to have a Discord
+                    username.
                 </p>
             {% endif %}
             {% if rpg.member_only %}
                 <p class="alert-primary alert card-text">
-                    <i class="fas fa-exclamation-triangle"></i> This event is only open to current members
+                    <i class="fas fa-exclamation-triangle"></i> This event is only open to current members.
+                </p>
+            {% endif %}
+            {% if rpg.parent %}
+                <p class="alert-primary alert card-text">
+                    <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to the parent event, {{ rpg.parent.title }}.
+                </p>
+            {% endif %}
+            {% if rpg.child_signup_only %}
+                <p class="alert-primary alert card-text">
+                    <i class="fas fa-exclamation-triangle"></i> This event requires you to sign up to a child event to be considered signed up. Please select one from the list below.
                 </p>
             {% endif %}
         {% endif %}
         {% if not embed %}
+            {% if rpg.members.all %}
             <ul class="list-group">
                 {% for member in rpg.members.all %}
                     <li class="list-group-item d-flex flex-row justify-content-between align-items-center">
                         {% include "parts/render_member.html" with avatarless=True %}
                         {% if manager %}
+                            <div class="d-flex flex-row align-items-center">
+                            {% if rpg.child_signup_only and not member|has_signed_up_to_child:rpg %}
+                                <p class="m-0 mr-2 btn btn-sm btn-outline-warning" data-toggle="tooltip" title="Not Signed up to child event">
+                                    <i class="fas fa-exclamation-triangle"></i><span class="sr-only">Not Signed up to child event</span>
+                                </p>
+                            {% endif %}
                             <form method="POST" action="{% url "rpgs:kick" rpg.pk %}">
                                 {% csrf_token %}
                                 <input type="hidden" value="{{ rpg.pk }}" name="id">
@@ -71,14 +100,37 @@
                                     <i class="fas fa-times"></i><span class="sr-only">Kick User</span>
                                 </button>
                             </form>
+                            </div>
                         {% endif %}
                     </li>
                 {% endfor %}
             </ul>
+            {% endif %}
             {% if user.member in rpg.members.all or user.member in rpg.game_masters.all %}
                 <a class="btn btn-block btn-outline-primary mt-2" href="{% url "rpgs:message" rpg.pk %}">Message Current
                     Members</a>
             {% endif %}
+            {% if rpg|has_accessible_children:user.member %}
+            <h5 class="mt-2">Sub-Events</h5>
+            <div class="list-group mb-2">
+                {% for sub in rpg.children.all %}
+                    {% can_access user.member sub as shown %}
+                    {% if shown %}
+                    <a class="list-group-item list-group-item-action d-flex flex-column"
+                       href="{% url 'rpgs:detail' sub.id %}">
+                                <span class="d-flex flex-column flex-sm-row justify-content-between align-items-baseline">
+                                    <strong>{% if not sub.published %}<span class="badge badge-dark">DRAFT</span>{% endif %} {{ sub.title }}</strong>
+                                    <span class="text-muted text-right flex-sm-shrink-0 ml-sm-2">{{ sub.timeslot }}</span>
+                                </span>
+                        <span class="d-flex flex-column flex-sm-row justify-content-between align-items-baseline">
+                                    <span class="">{{ sub.system }}</span>
+                                    <span class="badge badge-pill badge-primary mb-0 d-none d-sm-block">{{ sub.members.count }}/{{ sub.players_wanted }}</span>
+                                </span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
         {% endif %}
     </div>
     {% if not embed and user.is_authenticated %}
@@ -95,18 +147,20 @@
             <div class="flex-grow-1 mb-0">
                 <div class="btn-group btn-block">
                     {% if manager and not rpg.published %}
-                    <form id="event_publish" action="{% url "rpgs:publish" rpg.pk %}" method="post">
-                        {% csrf_token %}
-                    </form>
-                    <button type="submit" form="event_publish" class="btn btn-outline-success" href="{% url "rpgs:publish" rpg.pk %}" 
-                        data-toggle="tooltip" title="Make this event public, and notify everyone on the website and Discord."><i
-                            class="fas fa-exclamation-triangle"></i> <span>Publish</span></button>
+                        <form id="event_publish" action="{% url "rpgs:publish" rpg.pk %}" method="post">
+                            {% csrf_token %}
+                        </form>
+                        <button type="submit" form="event_publish" class="btn btn-outline-success"
+                                href="{% url "rpgs:publish" rpg.pk %}"
+                                data-toggle="tooltip"
+                                title="Make this event public, and notify everyone on the website and Discord."><i
+                                class="fas fa-exclamation-triangle"></i> <span>Publish</span></button>
                     {% endif %}
                     {% if user.member not in rpg.game_masters.all %}
                         {% if user.member in rpg.members.all %}
                             <button form="event_leave" type="submit" class="btn btn-outline-warning">Leave</button>
                         {% else %}
-                            {% if rpg.members.count < rpg.players_wanted %}
+                            {% if not rpg.child_signup_only and rpg.members.count < rpg.players_wanted %}
                                 <button form="event_join" type="submit" class="btn btn-outline-success">Join</button>
                             {% endif %}
                         {% endif %}
