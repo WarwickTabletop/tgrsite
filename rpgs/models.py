@@ -14,7 +14,7 @@ class RpgManager(models.Manager):
         if member:
             if member.equiv_user.has_perm("rpgs.view_rpg"):
                 return qs
-            return qs.filter(Q(published=True) | Q(creator=member) | Q(members=member) | Q(game_masters=member))
+            return qs.filter(Q(published=True) | Q(creator=member) | Q(members=member) | Q(game_masters=member)).distinct()
         return qs.filter(published=True)
 
 
