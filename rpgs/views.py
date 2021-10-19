@@ -84,7 +84,8 @@ def notify_rpg(object):
         discord_message += f"\n**Timeslot**: {object.timeslot}"
     if object.location:
         discord_message += f"\n**Location**: {object.location}"
-    discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url} to sign up."
+    # Current Discord webhook bug: it doesn't like some URLs with trailing slashes.
+    discord_message += f"\nVisit https://www.warwicktabletop.co.uk{url[:-1]} to sign up."
 
     notify_discord(discord_message, object.creator)
     object.published = True
