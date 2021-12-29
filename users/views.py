@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView,
 from django.contrib.auth.views import PasswordResetConfirmView
 from django.contrib.messages import add_message
 from django.contrib.messages import constants as messages
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -263,6 +263,15 @@ class VerifyConfirm(View):
             add_message(request, messages.ERROR, "Verification Failed. Please try again.")
         return HttpResponseRedirect(reverse("users:me"))
 
+
+class Tutorial(TemplateView):
+    template_name = "tutorial.html"
+
+class TutorialDone(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        request.user.member.seen_tutorial = True
+        request.user.member.save()
+        return HttpResponse()
 
 @login_required
 def allmembers(request):
