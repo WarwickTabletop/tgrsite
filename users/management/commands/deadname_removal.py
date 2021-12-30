@@ -6,13 +6,22 @@ from minutes.models import Meeting
 
 from enum import Enum
 
-# TODO: Apostrophe matches - i.e. X's (special care for names ending in s).
 class CapitalisationType(Enum):
     LOWERCASE = 1
     UPPERCASE = 2
     TITLECASE = 3
 
-def to_capitalisation(captype, target):
+class MatchLabel():
+    capitalisation : CapitalisationType = CapitalisationType.LOWERCASE
+    apostrophe = False
+
+    def __init__(self, cap, apos):
+        self.capitalisation = cap
+        self.apostrophe = apos
+
+def to_capitalisation(label, target):
+    captype = label.capitalisation
+    if label.apostrophe: target = apostrophe(target)
     if captype == CapitalisationType.LOWERCASE:
         return target.lower()
     if captype == CapitalisationType.UPPERCASE:
@@ -37,10 +46,12 @@ def tag_results(results, tag):
 
 # Returns all indices of needle in haystack, along with capitalisation type.
 def search_for(needle, haystack):
-    lowercase = tag_results(all_results(needle, haystack), CapitalisationType.LOWERCASE)
-    uppercase = tag_results(all_results(needle.upper(), haystack), CapitalisationType.UPPERCASE)
-    titlecase = tag_results(all_results(needle.title(), haystack), CapitalisationType.TITLECASE)
-    return lowercase + uppercase + titlecase
+    for apos in [False, True]:
+        n = apostrophe(needle) if apos else needle
+        lowercase = tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.LOWERCASE, apos))
+        uppercase = tag_results(all_results(n.upper(), haystack), MatchLabel(CapitalisationType.UPPERCASE, apos))
+        titlecase = tag_results(all_results(n.title(), haystack), MatchLabel(CapitalisationType.TITLECASE, apos))
+    return (lowercase + uppercase + titlecase).sort(key=lambda pair: pair[0])
 
 def give_context(index, haystack, size=100):
     # TODO: make this context highlight the target.
@@ -52,6 +63,11 @@ def identify_page(noun, page):
     return f"{noun} of page #{page.id} (https://www.warwicktabletop.co.uk/page/{page.name})"
 def identify_minutes(noun, minutes):
     return f"{noun} of minutes #{minutes.id} (https://www.warwicktabletop.co.uk/minutes/{minutes.folder.canonical_()}/{minutes.name})"
+
+def apostrophe(s):
+    if s[-1] == 's':
+        return s + "'"
+    return s + "'s"
 
 class Command(BaseCommand):
     help = "`deadname_removal deadname realname` searches all text entries for a deadname and helps you replace it."
@@ -72,33 +88,27 @@ class Command(BaseCommand):
         self.stdout.write(f"Matches found in {id_string}!")
         self.subs_sources.append(id_string)
 
-        loopindex = 0
         mod = 0
         sub_made = False
-        while loopindex < len(substitutions):
-            (index, ty) = substitutions[loopindex]
-            self.stdout.write(f"Match {loopindex+1}/{len(substitutions)}:")
+        for (index, label) in substitutions:
             self.stdout.write(give_context(index, haystack))
-            needle_caps = to_capitalisation(ty, needle)
-            new_needle_caps = to_capitalisation(ty, new_needle)
+            needle_caps = to_capitalisation(label, needle)
+            new_needle_caps = to_capitalisation(label, new_needle)
             self.stdout.write(f"Type 'yes' to substitute {needle_caps} for {new_needle_caps}.")
-            self.stdout.write("Type 'no' to not perform this substitution or 'special' to perform an alternative substitution.")
+            self.stdout.write("Type 'no' to not perform this substitution.")
             inp = ""
-            while inp != "yes" and inp != "no" and inp != "special":
+            while inp != "yes" and inp != "no":
                 inp = input("Choice: ")
             if inp == "yes":
                 index_mod = index + mod
                 haystack = haystack[0:index_mod] + new_needle_caps + haystack[index_mod+len(needle):len(haystack)]
                 sub_made = True
-                mod += len(new_needle) - len(needle)
+                mod += len(new_needle_caps) - len(needle_caps)
+                self.stdout.write("Substitution not made.")
             if inp == "no":
                 self.stdout.write("Substitution not made.")
-            if inp == "special":
-                # TODO
-                self.stdout.write("Currently unimplemented!")
 
             self.stdout.write("")
-            loopindex += 1
         
         return haystack, sub_made
     
