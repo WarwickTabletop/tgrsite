@@ -93,20 +93,23 @@ class Command(BaseCommand):
         mod = 0
         sub_made = False
         for (index, label) in substitutions:
+            # When we perform a substitution, the indices calculated at the start of the perform_substitutions call
+            # may become out of date (if the replacement string has a different length). This mod tracks the change
+            # in length and modifies all indices to work with the updated string.
+            index_mod = index + mod
             needle_caps = to_capitalisation(label, needle)
             new_needle_caps = to_capitalisation(label, new_needle)
-            self.stdout.write(self.give_context(index, needle_caps, haystack))
+            self.stdout.write(self.give_context(index_mod, needle_caps, haystack))
             self.stdout.write(f"Type 'yes' to substitute {needle_caps} for {new_needle_caps}.")
             self.stdout.write("Type 'no' to not perform this substitution.")
             inp = ""
             while inp != "yes" and inp != "no":
                 inp = input("Choice: ")
             if inp == "yes":
-                index_mod = index + mod
                 haystack = haystack[0:index_mod] + new_needle_caps + haystack[index_mod+len(needle):len(haystack)]
                 sub_made = True
                 mod += len(new_needle_caps) - len(needle_caps)
-                self.stdout.write("Substitution not made.")
+                self.stdout.write("Substitution made.")
             if inp == "no":
                 self.stdout.write("Substitution not made.")
 
@@ -121,18 +124,32 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("""This program is for finding and replacing deadnames present on the website.
 This comes with a few disclaimers, which you **must** heed:
-1. This does a simple find-and-replace over various parts of the website - newsletters, hosted pages (including Exec History) and meeting minutes.
-   This does _not_ edit parts of the website that aren't "official society communication". Those edits will be up to individuals to make.
-   Since this is just a find-and-replace, it only replaces names and not pronouns. You will have to deal with pronouns yourself for the most part.
-2. You should only perform a find-and-replace if you are sure that the name in question is the correct one.
-   It turns out multiple people can have the same name! Some context will be provided to help discern this, as well as a link to the full original source.
-3. This does not attempt any optical character recognition, so cannot read images. You'll have to check images of things like tournament standings yourself.
-   Alt text containing the deadname will be flagged up as such, as you'll likely have to change the image also.
-   You can check for additional alt text keywords to identify images where the person may have been deadnames (e.g. 'magic', 'netrunner', 'tournament').
-   This does not guarantee all offending images will be found however, so you should still manually check afterwards.
+1. This does a simple find-and-replace over various parts of the website -
+   newsletters, hosted pages (including Exec History) and meeting minutes.
+   This does _not_ edit parts of the website that aren't "official society
+   communication". Those edits will be up to individuals to make.
+   Since this is just a find-and-replace, it only replaces names and not
+   pronouns. You will have to deal with pronouns yourself for the most part.
+2. You should only perform a find-and-replace if you are sure that the name
+   in question is the correct one.
+   It turns out multiple people can have the same name! Some context will be
+   provided to help discern this, as well as a link to the full original
+   source.
+3. This does not attempt any optical character recognition, so cannot read
+   images. You'll have to check images of things like tournament standings
+   yourself.
+   Alt text containing the deadname will be flagged up as such, as you'll
+   likely have to change the image also.
+   You can check for additional alt text keywords to identify images where
+   the person may have been deadnames (e.g. 'mtg', 'netrunner', 'tournament').
+   This does not guarantee all offending images will be found however, so you
+   should still manually check afterwards.
 4. Only perform this process if the person has actively asked for it.
-   There are a variety of reasons that someone might not want this process to have been done, such as not being out to employers who want evidence of work done at the society.
-5. This does not perform any changes on Discord or Facebook. You'll have to do those yourself.
+   There are a variety of reasons that someone might not want this process to
+   have been done, such as not being out to employers who want evidence of work
+   done at the society.
+5. This does not perform any changes on Discord or Facebook. You'll have to do 
+   those yourself.
 
 Please type out 'yes' to confirm that you understand this.""")
         self.must_be("Confirm: ", "yes")
