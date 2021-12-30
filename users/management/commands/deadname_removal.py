@@ -6,6 +6,7 @@ from minutes.models import Meeting
 
 from enum import Enum
 from titlecase import titlecase
+import re
 
 class CapitalisationType(Enum):
     LOWERCASE = 1
@@ -47,14 +48,15 @@ def tag_results(results, tag):
 
 # Returns all indices of needle in haystack, along with capitalisation type.
 def search_for(needle, haystack):
+    results = []
     for apos in [False, True]:
         n = apostrophe(needle) if apos else needle
-        lowercase = tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.LOWERCASE, apos))
-        uppercase = tag_results(all_results(n.upper(), haystack), MatchLabel(CapitalisationType.UPPERCASE, apos))
-        titled = tag_results(all_results(titlecase(n), haystack), MatchLabel(CapitalisationType.TITLECASE, apos))
-    result = lowercase + uppercase + titled
-    result.sort(key=lambda pair: pair[0])
-    return result
+        results.append(tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.LOWERCASE, apos)))
+        results.append(tag_results(all_results(n.upper(), haystack), MatchLabel(CapitalisationType.UPPERCASE, apos)))
+        results.append(tag_results(all_results(titlecase(n), haystack), MatchLabel(CapitalisationType.TITLECASE, apos)))
+    combined = [j for i in results for j in i]
+    combined.sort(key=lambda pair: pair[0])
+    return combined
 
 def identify_newsletter(noun, newsletter):
     return f"{noun} of newsletter #{newsletter.id} (https://www.warwicktabletop.co.uk/newsletters/{newsletter.id})"
@@ -161,11 +163,31 @@ Please type out 'yes' to confirm that you understand this.""")
                 dead, real, n.title)
             n.summary, sub2 = self.perform_substitutions(identify_newsletter("Summary", n),
                 dead, real, n.summary)
-            # TODO: body needs to be searched for alt text keywords.
             n.body, sub3 = self.perform_substitutions(identify_newsletter("Body", n),
                 dead, real, n.body)
             if sub1 or sub2 or sub3:
                 n.save()
+        self.stdout.write("""Would you like to look for specific alt-text in
+newsletter images?
+This can help identify images that might contain deadnames.
+Example alt-text you might look for is 'mtg' or 'magic' for a Magic player to
+try and find tournament standings.
+
+Enter your search terms separated by commas if you'd like to look for them, or
+leave it blank if you want to skip this step. For example, for the above Magic
+player you might enter:
+mtg,magic,tournament
+""")
+        term_str = input("Search terms:")
+        terms = term_str.split(",")
+        for term in terms:
+            if term != "":
+                for n in Newsletter.objects.all():
+                    if re.search(f"\[.+?{term}.+?\]\(.+?\)", n.body):
+                        id_string = identify_newsletter("Body", n)
+                        self.stdout.write(f"Found term {term} in alt-text in: {id_string}!")
+                        self.subs_sources.append(f"(found term {term}) {id_string}")
+
         self.stdout.write("Done with newsletters!")
         self.stdout.write("Cool, now doing pages. Please be careful when applying substitutions directly to HTML!")
         for p in Page.objects.all():
