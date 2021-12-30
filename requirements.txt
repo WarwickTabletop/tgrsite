@@ -9,4 +9,5 @@ django_bleach
 premailer
 uuid
 python-dateutil
+titlecase
 #django-debug-toolbar

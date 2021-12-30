@@ -5,6 +5,7 @@ from pages.models import Page
 from minutes.models import Meeting
 
 from enum import Enum
+from titlecase import titlecase
 
 class CapitalisationType(Enum):
     LOWERCASE = 1
@@ -27,7 +28,7 @@ def to_capitalisation(label, target):
     if captype == CapitalisationType.UPPERCASE:
         return target.upper()
     if captype == CapitalisationType.TITLECASE:
-        return target.title()
+        return titlecase(target)
 
 def all_results(needle, haystack):
     index = 0
@@ -50,12 +51,10 @@ def search_for(needle, haystack):
         n = apostrophe(needle) if apos else needle
         lowercase = tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.LOWERCASE, apos))
         uppercase = tag_results(all_results(n.upper(), haystack), MatchLabel(CapitalisationType.UPPERCASE, apos))
-        titlecase = tag_results(all_results(n.title(), haystack), MatchLabel(CapitalisationType.TITLECASE, apos))
-    return (lowercase + uppercase + titlecase).sort(key=lambda pair: pair[0])
-
-def give_context(index, haystack, size=100):
-    # TODO: make this context highlight the target.
-    return haystack[max(index-size, 0):index+size]
+        titled = tag_results(all_results(titlecase(n), haystack), MatchLabel(CapitalisationType.TITLECASE, apos))
+    result = lowercase + uppercase + titled
+    result.sort(key=lambda pair: pair[0])
+    return result
 
 def identify_newsletter(noun, newsletter):
     return f"{noun} of newsletter #{newsletter.id} (https://www.warwicktabletop.co.uk/newsletters/{newsletter.id})"
@@ -79,6 +78,9 @@ class Command(BaseCommand):
             return
         else:
             self.must_be(s, x)
+    def give_context(self, index, needle, haystack, size=100):
+        return self.style.SUCCESS(haystack[max(index-size, 0):index])\
+            + self.style.NOTICE(needle) + self.style.SUCCESS(haystack[index+len(needle):index+len(needle)+size])
     
     def perform_substitutions(self, id_string, needle, new_needle, haystack):
         substitutions = search_for(needle, haystack)
@@ -91,9 +93,9 @@ class Command(BaseCommand):
         mod = 0
         sub_made = False
         for (index, label) in substitutions:
-            self.stdout.write(give_context(index, haystack))
             needle_caps = to_capitalisation(label, needle)
             new_needle_caps = to_capitalisation(label, new_needle)
+            self.stdout.write(self.give_context(index, needle_caps, haystack))
             self.stdout.write(f"Type 'yes' to substitute {needle_caps} for {new_needle_caps}.")
             self.stdout.write("Type 'no' to not perform this substitution.")
             inp = ""
