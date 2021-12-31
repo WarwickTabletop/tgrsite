@@ -63,6 +63,11 @@ class Create(PermissionRequiredMixin, CreateView):
 
     permission_required = 'newsletters.add_newsletter'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["wide"] = True
+        return context
+
     def get_initial(self):
         initial = super().get_initial()
         template, d = TextProperty.objects.get_or_create(key='newsletter_template', defaults="")
