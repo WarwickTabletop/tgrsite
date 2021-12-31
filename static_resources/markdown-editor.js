@@ -126,7 +126,14 @@ function length(str) {
                 stale = true,
                 endpoint = $(this).data("endpoint") || "/api/md_preview/",
                 controls = $('<div class="controls" id="' + txt.id + '-controls" />'); // button container
-
+                stalePreviewIcon = 'fa-eye-slash'
+                previewSource = controls;
+            
+            if (isFull) {
+                previewSource = $('.full-preview');
+                stalePreviewIcon = 'fa-check'
+            }
+            
             const format_classes = "btn btn-light";
             const button_template = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="';
             var md_toolbar = '<div class="btn-toolbar" role="toolbar" aria-label="Markdown Toolbar">'
@@ -153,12 +160,31 @@ function length(str) {
  
             if (!isFull) md_toolbar += '<div class="preview"></div>'
 
+            let doPreview = function() {
+                if (stale) {
+                    stale = false;
+                    controls.find('.fa-eye').removeClass('fa-eye').addClass(stalePreviewIcon);
+                    createPreview(txt, previewSource, endpoint);
+                } else {
+                    if (!isFull) previewSource.find('.preview').slideUp();
+                    controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                    stale = true;
+                }
+                return true;
+            };
+            let timeout;
+            if (isFull) timeout = setTimeout(doPreview, 1);
+
             $(txt).before(controls.append(md_toolbar));
             if (!isFull) controls.find('.preview').slideUp();
             $(txt).on('keydown', function (event) {
-                controls.find('.card').addClass("text-muted");
-                controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
+                previewSource.find('.card').addClass("text-muted");
+                controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
                 stale = true;
+                if (isFull) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(doPreview, 1000);
+                }
                 return MarkdownHelper(txt, event);
             });
 
@@ -171,18 +197,7 @@ function length(str) {
                 let tag = tags[tagName]
 
                 if (tagName === "preview") {
-                    if (stale) {
-                        stale = false;
-                        controls.find('.fa-eye').removeClass('fa-eye').addClass('fa-eye-slash');
-                        var previewSource = controls;
-                        if (isFull) previewSource = $('.full-preview');
-                        createPreview(txt, previewSource, endpoint);
-                    } else {
-                        controls.find('.preview').slideUp();
-                        controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
-                        stale = true;
-                    }
-                    return true;
+                    doPreview();
                 }
                 let a = toLines(txt.value, range);
                 let lines = a.lines;
@@ -229,8 +244,8 @@ function length(str) {
                 setCaretToPos(txt, range.start + start_delta, range.end + end_delta);
 
                 stale=true;
-                controls.find('.card').addClass("text-muted");
-                controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
+                previewSource.find('.card').addClass("text-muted");
+                controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
 
                 return true;
             });
