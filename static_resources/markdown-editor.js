@@ -42,7 +42,7 @@ function length(str) {
 }
 
 (function ($, window, document, undefined) {
-    $.fn.MarkdownEditor = function () {
+    $.fn.MarkdownEditor = function (isFull) {
 
         var adjustOffset = function (input, offset) {
                 let val = input.value, newOffset = offset;
@@ -129,8 +129,7 @@ function length(str) {
 
             const format_classes = "btn btn-light";
             const button_template = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="';
-            $(txt).before(controls.append(
-                '<div class="btn-toolbar" role="toolbar" aria-label="Markdown Toolbar">'
+            var md_toolbar = '<div class="btn-toolbar" role="toolbar" aria-label="Markdown Toolbar">'
                 + '<div class="btn-group mr-2 mb-1" role="group" aria-label="Formatting">'
                 + button_template + 'Bold" class="' + format_classes + ' c-bold"><i class="fas fa-bold"></i></button>'
                 + button_template + 'Italic" class="' + format_classes + ' c-italic"><i class="fas fa-italic"></i></button>'
@@ -151,9 +150,11 @@ function length(str) {
                 + button_template + 'Preview" class="' + format_classes + ' c-preview"><i class="fas fa-eye"></i></button>'
                 + '</div>'
                 + '</div>'
-                + '<div class="preview"></div>'
-            ));
-            controls.find('.preview').slideUp();
+ 
+            if (!isFull) md_toolbar += '<div class="preview"></div>'
+
+            $(txt).before(controls.append(md_toolbar));
+            if (!isFull) controls.find('.preview').slideUp();
             $(txt).on('keydown', function (event) {
                 controls.find('.card').addClass("text-muted");
                 controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
@@ -173,7 +174,9 @@ function length(str) {
                     if (stale) {
                         stale = false;
                         controls.find('.fa-eye').removeClass('fa-eye').addClass('fa-eye-slash');
-                        createPreview(txt, controls, endpoint);
+                        var previewSource = controls;
+                        if (isFull) previewSource = $('.full-preview');
+                        createPreview(txt, previewSource, endpoint);
                     } else {
                         controls.find('.preview').slideUp();
                         controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');

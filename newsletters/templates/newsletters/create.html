@@ -8,5 +8,16 @@
 {% block breadcrumbs_child %}New{% endblock %}
 
 {% block body %}
-    {% include "parts/render_form.html" %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="container-fluid">
+                {% include "parts/render_form.html" %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="container-fluid full-preview">
+                <div class="preview"></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

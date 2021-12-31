@@ -7,8 +7,8 @@ BOOTSTRAP_FORM_WIDGET_attrs = {
     'class': 'form-control'
 }
 
-MD_INPUT = {
-    'class': 'markdown-input',
+MD_INPUT_NEWS = {
+    'class': 'markdown-input-news',
     'data-endpoint': reverse_lazy('utilities:preview_newsletter'),
     'rows': 25
 }
@@ -20,7 +20,7 @@ class NewsletterForm(ModelForm):
         fields = ['title', 'body', 'summary', 'ispublished']
         widgets = {
             'title': TextInput(attrs=BOOTSTRAP_FORM_WIDGET_attrs),
-            'body': Textarea(attrs=MD_INPUT),
+            'body': Textarea(attrs=MD_INPUT_NEWS),
             'summary': TextInput(attrs=BOOTSTRAP_FORM_WIDGET_attrs),
             'ispublished': CheckboxInput(),
         }

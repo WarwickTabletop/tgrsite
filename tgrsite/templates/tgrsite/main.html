@@ -109,11 +109,13 @@ THIS IS USED BY THE SITE
     {# Typeahead #}
     <script src="{% static 'bootstrap3-typeahead.min.js' %}"></script>
     {# Markdown editor #}
-    <script src="{% static "markdown-editor.min.js" %}"></script>
+    <!-- TODO minify once done -->
+    <script src="{% static "markdown-editor.js" %}"></script>
     <script>
         $(document).ready(function () {
             console.log("Getting ready.");
-            $(".markdown-input").MarkdownEditor();
+            $(".markdown-input-news").MarkdownEditor(true);
+            $(".markdown-input").MarkdownEditor(false);
             $('[data-toggle="tooltip"]').tooltip()
         });
 
