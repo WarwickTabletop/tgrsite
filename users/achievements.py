@@ -28,7 +28,7 @@ def give_achievement(member: Member, trigger: str, date: datetime = None, reques
     if date is None:
         date = timezone.now()
     achiev = get_achievement_from_trigger(trigger)
-    award = AchievementAward.objects.update_or_create(
+    award = AchievementAward.objects.create(
         member=member,
         achievement=achiev,
         defaults={'achieved_at': date})
