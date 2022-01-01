@@ -87,8 +87,16 @@ function length(str) {
                     start: '*', end: '*', placeholder: 'Your emphasized text',
                     line: false, block: false
                 },
-                head: {
-                    start: '#', end: '', placeholder: 'Your header',
+                h1: {
+                    start: '# ', end: '', placeholder: 'Your header',
+                    line: true, block: false
+                },
+                h2news: {
+                    start: '## ', end: ' {.news-bg}', placeholder: 'Your header',
+                    line: true, block: false
+                },
+                h3news: {
+                    start: '### ', end: ' {.news-bg}', placeholder: 'Your header',
                     line: true, block: false
                 },
                 quote: {
@@ -101,6 +109,14 @@ function length(str) {
                 },
                 image: {
                     start: '![', end: '](https://example.org/)', placeholder: 'Add image description',
+                    line: false, block: false 
+                },
+                imageleft: {
+                    start: '![', end: '](https://example.org/){.news-image-left}', placeholder: 'Add image description',
+                    line: false, block: false
+                },
+                imageright: {
+                    start: '![', end: '](https://example.org/){.news-image-right}', placeholder: 'Add image description',
                     line: false, block: false
                 },
                 code: {
@@ -150,23 +166,37 @@ function length(str) {
                 + button_template + 'Italic" class="' + format_classes + ' c-italic"><i class="fas fa-italic"></i></button>'
                 + button_template + 'Strikethrough" class="' + format_classes + ' c-strike"><i class="fas fa-strikethrough"></i></button>'
                 + button_template + 'Code" class="' + format_classes + ' c-code"><i class="fas fa-code"></i></button>'
-                + button_template + 'Heading" class="' + format_classes + ' c-head"><i class="fas fa-heading"></i></button>'
-                + button_template + 'Quote" class="' + format_classes + ' c-quote"><i class="fas fa-quote-right"></i></button>'
+
+            if (!isFull) {
+                md_toolbar += button_template + 'Heading" class="' + format_classes + ' c-h1"><i class="fas fa-heading"></i></button>'
+            } else {
+                md_toolbar += button_template + 'Heading 2" class="' + format_classes + ' c-h2news"><i class="fas fa-heading"></i>2</button>'
+                    + button_template + 'Heading 3" class="' + format_classes + ' c-h3news"><i class="fas fa-heading"></i>3</button>'
+            }
+
+            md_toolbar += button_template + 'Quote" class="' + format_classes + ' c-quote"><i class="fas fa-quote-right"></i></button>'
 
                 + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Utilities">'
                 + button_template + 'Link" class="' + format_classes + ' c-link"><i class="fas fa-link"></i></button>'
                 + button_template + 'Image" class="' + format_classes + ' c-image"><i class="fas fa-image"></i></button>'
+            
+            if (isFull) {
+                md_toolbar += button_template + 'Image (Left, 50% Width)" class="' + format_classes + ' c-imageleft"><i class="fas fa-caret-left"></i>&nbsp;<i class="fas fa-image"></i></button>'
+                    + button_template + 'Image (Right, 50% Width)" class="' + format_classes + ' c-imageright"><i class="fas fa-image"></i>&nbsp;<i class="fas fa-caret-right"></i></button>'
+            }
 
-                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
+            md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
                 + button_template + 'Bullet List" class="' + format_classes + ' c-ul"><i class="fas fa-list-ul"></i></button>'
                 + button_template + 'Ordered List" class="' + format_classes + ' c-ol"><i class="fas fa-list-ol"></i></button>'
 
-                // TODO: needs to only appear on newsletter
-                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
-                + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
-                + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
+            if (isFull) {
+                // TODO: add ? button with a classes reference.
+                md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
+                    + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
+                    + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
+            }
 
-                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
+            md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
                 + button_template + 'Preview" class="' + format_classes + ' c-preview"><i class="fas fa-eye"></i></button>'
                 + '</div>'
                 + '</div>'
@@ -259,6 +289,10 @@ function length(str) {
                 stale=true;
                 previewSource.find('.card').addClass("text-muted");
                 controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                if (isFull) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(doPreview, 600);
+                }
 
                 return true;
             });
