@@ -119,6 +119,14 @@ function length(str) {
                     start: '1. ', end: '', placeholder: 'List Item',
                     line: true, block: true
                 },
+                break: {
+                    start: '', end: '\n{.clearfix}', placeholder: '',
+                    line: true, block: true
+                },
+                custom: {
+                    start: '', end: ' {.custom-class-here}', placeholder: '',
+                    line: true, block: true
+                }
             };
 
         return this.each(function () {
@@ -152,6 +160,11 @@ function length(str) {
                 + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
                 + button_template + 'Bullet List" class="' + format_classes + ' c-ul"><i class="fas fa-list-ul"></i></button>'
                 + button_template + 'Ordered List" class="' + format_classes + ' c-ol"><i class="fas fa-list-ol"></i></button>'
+
+                // TODO: needs to only appear on newsletter
+                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
+                + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
+                + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
 
                 + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
                 + button_template + 'Preview" class="' + format_classes + ' c-preview"><i class="fas fa-eye"></i></button>'
