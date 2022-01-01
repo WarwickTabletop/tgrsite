@@ -183,7 +183,7 @@ function length(str) {
                 stale = true;
                 if (isFull) {
                     clearTimeout(timeout);
-                    timeout = setTimeout(doPreview, 1000);
+                    timeout = setTimeout(doPreview, 600);
                 }
                 return MarkdownHelper(txt, event);
             });
