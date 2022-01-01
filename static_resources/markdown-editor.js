@@ -181,8 +181,10 @@ function length(str) {
                 + button_template + 'Image" class="' + format_classes + ' c-image"><i class="fas fa-image"></i></button>'
             
             if (isFull) {
-                md_toolbar += button_template + 'Image (Left, 50% Width)" class="' + format_classes + ' c-imageleft"><i class="fas fa-caret-left"></i>&nbsp;<i class="fas fa-image"></i></button>'
-                    + button_template + 'Image (Right, 50% Width)" class="' + format_classes + ' c-imageright"><i class="fas fa-image"></i>&nbsp;<i class="fas fa-caret-right"></i></button>'
+                md_toolbar += button_template + 'Image (Left, 50% Width)" class="' + format_classes
+                    + ' c-imageleft"><i class="fas fa-caret-left"></i>&nbsp;<i class="fas fa-image"></i></button>'
+                    + button_template + 'Image (Right, 50% Width)" class="' + format_classes
+                    + ' c-imageright"><i class="fas fa-image"></i>&nbsp;<i class="fas fa-caret-right"></i></button>'
             }
 
             md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
@@ -190,10 +192,11 @@ function length(str) {
                 + button_template + 'Ordered List" class="' + format_classes + ' c-ol"><i class="fas fa-list-ol"></i></button>'
 
             if (isFull) {
-                // TODO: add ? button with a classes reference.
                 md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
                     + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
                     + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
+                    + '<button type="button" data-placement="bottom" title="Help" class="' + format_classes
+                    + ' c-help" data-toggle="modal" data-target="#helpmodal"><i class="fas fa-question"></i></button>'
             }
 
             md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
@@ -241,6 +244,8 @@ function length(str) {
 
                 if (tagName === "preview") {
                     return doPreview();
+                } else if (tagName === "help") {
+                    return true;
                 }
                 let a = toLines(txt.value, range);
                 let lines = a.lines;
