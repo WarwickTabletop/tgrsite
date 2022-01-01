@@ -167,7 +167,7 @@ function length(str) {
                     createPreview(txt, previewSource, endpoint);
                 } else {
                     if (!isFull) previewSource.find('.preview').slideUp();
-                    controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                    controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
                     stale = true;
                 }
                 return true;
@@ -179,7 +179,7 @@ function length(str) {
             if (!isFull) controls.find('.preview').slideUp();
             $(txt).on('keydown', function (event) {
                 previewSource.find('.card').addClass("text-muted");
-                controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
                 stale = true;
                 if (isFull) {
                     clearTimeout(timeout);
@@ -197,7 +197,7 @@ function length(str) {
                 let tag = tags[tagName]
 
                 if (tagName === "preview") {
-                    doPreview();
+                    return doPreview();
                 }
                 let a = toLines(txt.value, range);
                 let lines = a.lines;
@@ -245,7 +245,7 @@ function length(str) {
 
                 stale=true;
                 previewSource.find('.card').addClass("text-muted");
-                controls.find(stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
 
                 return true;
             });
