@@ -96,6 +96,11 @@ class Update(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin, U
 
     permission_required = 'newsletters.change_newsletter'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["wide"] = True
+        return context
+
     def form_valid(self, form):
         should_mail = False
         # If newsletter goes from unpublished to published.

@@ -1,4 +1,4 @@
-{% extends 'tgrsite/main.html' %}
+{% extends './create.html' %}
 {% block title %}Update Newsletter{% endblock %}
 {% block pagetitle %}Update Newsletter{% endblock %}
 
@@ -7,7 +7,3 @@
     <li class="breadcrumb-item"><a href="{% url "newsletters:newsletters_detail" pk=object.pk %}">{{object.title}}</a></li>
 {% endblock %}
 {% block breadcrumbs_child %}Update{% endblock %}
-
-{% block body %}
-    {% include "parts/render_form.html" %}
-{% endblock %}
