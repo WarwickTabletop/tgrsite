@@ -38,19 +38,19 @@ affix_map = {ord(i): None for i in affixes}
 def room_link(r, _class):
     # Remove all special characters from affixes.
     rooms = r.split(",")
-    rooms = [i.strip().translate(affix_map) for i in rooms]
+    rooms_simple = [i.strip().translate(affix_map) for i in rooms]
     results = []
-    for room in rooms:
+    for (room, simple) in zip(rooms, rooms_simple):
         roomlink = None
         # print(room)
-        if len(room) > 0:
+        if len(simple) > 0:
             try:
-                roomlink = RoomLink.objects.get(room__iexact=room)
+                roomlink = RoomLink.objects.get(room__iexact=simple)
             except (RoomLink.DoesNotExist, RoomLink.MultipleObjectsReturned):
-                roomlink = RoomLink.objects.filter(room__icontains=room).first()
+                roomlink = RoomLink.objects.filter(room__icontains=simple).first()
         if roomlink is None:
             results.append(room)
         else:
             results.append(format_html('<a target="_blank" rel="noopener noreferrer" href="{}" class="{}">{}</a>',
                 roomlink.url, _class, room))
-    return mark_safe(", ".join(results))
+    return mark_safe(",".join(results))
