@@ -81,9 +81,14 @@ If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect th
             return
         else:
             self.must_be(s, x)
+
     def give_context(self, index, needle, haystack, size=100):
-        return self.style.SUCCESS(haystack[max(index-size, 0):index])\
-            + self.style.NOTICE(needle) + self.style.SUCCESS(haystack[index+len(needle):index+len(needle)+size])
+        needle_highlighted = self.style.ERROR(needle)
+        if self.extra_prints:
+            needle_highlighted = f"-->{needle_highlighted}<--"
+        # SQL_COLTYPE = green no bold, ERROR = red bold
+        return self.style.SQL_COLTYPE(haystack[max(index-size, 0):index])\
+            + needle_highlighted + self.style.SQL_COLTYPE(haystack[index+len(needle):index+len(needle)+size])
     
     def perform_substitutions(self, id_string, needle, new_needle, haystack):
         substitutions = search_for(needle, haystack)
@@ -127,6 +132,7 @@ If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect th
         parser.add_argument("realname", type=str)
 
     def handle(self, *args, **options):
+        self.extra_prints = options['no_color']
         self.stdout.write("""This program is for finding and replacing deadnames present on the website.
 This comes with a few disclaimers, which you """ + self.style.NOTICE("must") + """ heed:
 1. This does a simple find-and-replace over various parts of the website -
