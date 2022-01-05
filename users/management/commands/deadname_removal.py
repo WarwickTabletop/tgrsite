@@ -73,6 +73,7 @@ class Command(BaseCommand):
     help = """`deadname_removal Deadname Realname` searches all text entries for a deadname and helps you replace it.
 If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect that case - otherwise it will default to capitalising the first letter."""
     subs_sources = []
+    keyword_matches = []
 
     def must_be(self, s, x):
         inp = input(s)
@@ -90,10 +91,9 @@ If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect th
             return haystack, False
         
         self.stdout.write(f"Matches found in {id_string}!")
-        self.subs_sources.append(id_string)
 
         mod = 0
-        sub_made = False
+        subs_made = 0
         for (index, label) in substitutions:
             # When we perform a substitution, the indices calculated at the start of the perform_substitutions call
             # may become out of date (if the replacement string has a different length). This mod tracks the change
@@ -105,19 +105,22 @@ If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect th
             self.stdout.write(f"Type 'yes' to substitute {needle_caps} for {new_needle_caps}.")
             self.stdout.write("Type 'no' to not perform this substitution.")
             inp = ""
-            while inp != "yes" and inp != "no":
+            while inp != "yes" and inp != "no" and inp != "n":
                 inp = input("Choice: ").lower()
             if inp == "yes":
                 haystack = haystack[0:index_mod] + new_needle_caps + haystack[index_mod+len(needle):len(haystack)]
-                sub_made = True
                 mod += len(new_needle_caps) - len(needle_caps)
+                subs_made += 1
                 self.stdout.write("Substitution made.")
             if inp == "no" or inp == "n":
                 self.stdout.write("Substitution not made.")
 
             self.stdout.write("")
         
-        return haystack, sub_made
+        # (human-readable string, number of substitutions, number of attempts)
+        self.subs_sources.append((id_string, subs_made, len(substitutions)))
+
+        return haystack, (subs_made > 0)
     
     def add_arguments(self, parser):
         parser.add_argument("deadname", type=str)
@@ -195,7 +198,7 @@ mtg,magic,tournament
                     if re.search(f"\[.+?{term}.+?\]\(.+?\)", n.body):
                         id_string = identify_newsletter("Body", n)
                         self.stdout.write(f"Found term {term} in alt-text in: {id_string}!")
-                        self.subs_sources.append(f"(found term {term}) {id_string}")
+                        self.keyword_matches.append(f"(found term {term}) {id_string}")
 
         self.stdout.write("Done with newsletters!")
         self.stdout.write("Cool, now doing pages. Please be careful when applying substitutions directly to HTML!")
@@ -219,4 +222,6 @@ mtg,magic,tournament
                 m.save()
         self.stdout.write("Deadname removal completed. Report of changes made:")
         for sub in self.subs_sources:
+            self.stdout.write(f"{sub[1]}/{sub[2]} substitutions made: {sub[0]}")
+        for sub in self.keyword_matches:
             self.stdout.write(sub)
