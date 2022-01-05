@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth import authenticate
+from users.models import User
 
 from messaging.models import Message
 
@@ -12,13 +12,13 @@ class Command(BaseCommand):
         self.stdout.write("""This service is for censoring messages containing sensitive information.
 You can send passwords to the exec that need them, and then censor the messages
 containing those passwords directly using this tool.
-
-First, you need to log in to access your messages.""")
+"""
+            + self.style.ERROR("ONLY USE THIS TOOL ON MESSAGES FOR WHICH YOU HAVE PERMISSION TO DO SO.\n\n")
+            + "First, provide the username for which you'd like to censor their messages.")
         username = input("Enter website username: ")
-        password = getpass("Enter website password: ")
-        user = authenticate(username=username, password=password)
+        user = User.objects.filter(username=username).first()
         if user is None:
-            self.stdout.write("Could not authenticate!")
+            self.stdout.write("Could not find that user!")
             return
         self.stdout.write("""Authenticated. Please enter the sensitive information that you wish to censor.
 Every message containing that substring will be censored. As such, you may
@@ -36,7 +36,7 @@ identifies it.""")
                     members = list(m.thread.participants.all())
                     member_usernames = map(lambda member: member.equiv_user.username, members)
                     title = ",".join(member_usernames)
-                self.stdout.write(f"Message to {m.thread.participants} censored:\n{self.style.SUCCESS(m.content.replace(sensitive, '*' * len(sensitive)))}")
+                self.stdout.write(f"Message {m.thread} censored:\n{self.style.SUCCESS(m.content.replace(sensitive, '*' * len(sensitive)))}")
                 m.content = "(This message has been censored.)"
                 m.save()
         self.stdout.write("Censored all relevant messages.")
