@@ -28,8 +28,7 @@ def to_capitalisation(label, target):
         return target.lower()
     if captype == CapitalisationType.UPPERCASE:
         return target.upper()
-    if captype == CapitalisationType.TITLECASE:
-        return titlecase(target)
+    return target
 
 def all_results(needle, haystack):
     index = 0
@@ -51,9 +50,9 @@ def search_for(needle, haystack):
     results = []
     for apos in [False, True]:
         n = apostrophe(needle) if apos else needle
-        results.append(tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.LOWERCASE, apos)))
+        results.append(tag_results(all_results(n.lower(), haystack), MatchLabel(CapitalisationType.LOWERCASE, apos)))
         results.append(tag_results(all_results(n.upper(), haystack), MatchLabel(CapitalisationType.UPPERCASE, apos)))
-        results.append(tag_results(all_results(titlecase(n), haystack), MatchLabel(CapitalisationType.TITLECASE, apos)))
+        results.append(tag_results(all_results(n, haystack), MatchLabel(CapitalisationType.TITLECASE, apos)))
     combined = [j for i in results for j in i]
     combined.sort(key=lambda pair: pair[0])
     return combined
@@ -71,7 +70,8 @@ def apostrophe(s):
     return s + "'s"
 
 class Command(BaseCommand):
-    help = "`deadname_removal deadname realname` searches all text entries for a deadname and helps you replace it."
+    help = """`deadname_removal Deadname Realname` searches all text entries for a deadname and helps you replace it.
+If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect that case - otherwise it will default to capitalising the first letter."""
     subs_sources = []
 
     def must_be(self, s, x):
@@ -106,13 +106,13 @@ class Command(BaseCommand):
             self.stdout.write("Type 'no' to not perform this substitution.")
             inp = ""
             while inp != "yes" and inp != "no":
-                inp = input("Choice: ")
+                inp = input("Choice: ").lower()
             if inp == "yes":
                 haystack = haystack[0:index_mod] + new_needle_caps + haystack[index_mod+len(needle):len(haystack)]
                 sub_made = True
                 mod += len(new_needle_caps) - len(needle_caps)
                 self.stdout.write("Substitution made.")
-            if inp == "no":
+            if inp == "no" or inp == "n":
                 self.stdout.write("Substitution not made.")
 
             self.stdout.write("")
@@ -125,7 +125,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write("""This program is for finding and replacing deadnames present on the website.
-This comes with a few disclaimers, which you **must** heed:
+This comes with a few disclaimers, which you """ + self.style.NOTICE("must") + """ heed:
 1. This does a simple find-and-replace over various parts of the website -
    newsletters, hosted pages (including Exec History) and meeting minutes.
    This does _not_ edit parts of the website that aren't "official society
@@ -152,12 +152,21 @@ This comes with a few disclaimers, which you **must** heed:
    done at the society.
 5. This does not perform any changes on Discord or Facebook. You'll have to do 
    those yourself.
+6. For names with complex title casing (e.g. MacDonald), please restart the
+   program and enter the command line arguments with that case. This tool
+   assumes that the input given is of the correct case, or if the input is all
+   lowercase then it assumes that the default (of capitalising the first
+   letter) is correct.
 
 Please type out 'yes' to confirm that you understand this.""")
         self.must_be("Confirm: ", "yes")
         self.stdout.write("Thank you!")
         self.stdout.write("We'll start with the newsletters. Searching through all newsletters!")
-        dead, real = options['deadname'].lower(), options['realname'].lower()
+        dead, real = options['deadname'], options['realname']
+        if dead == dead.lower():
+            dead = titlecase(dead)
+        if real == real.lower():
+            real = titlecase(real)
         for n in Newsletter.objects.all():
             n.title, sub1 = self.perform_substitutions(identify_newsletter("Title", n),
                 dead, real, n.title)
