@@ -1,5 +1,6 @@
 {% load static %}
 {% load markdown_tags %}
+{% load property_tags %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -58,6 +59,8 @@
         {% block navbar %}{% endblock %}
     </div>
 
+    {% block modal %}
+    {% endblock %}
 
     <div class="container-fluid">
 

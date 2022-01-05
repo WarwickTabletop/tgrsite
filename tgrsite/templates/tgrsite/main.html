@@ -22,6 +22,29 @@ THIS IS USED BY THE SITE
     {% include "nav.html" %}
 {% endblock %}
 
+{% block modal %}
+    <div class="modal fade bd-example-modal-lg" id="tutorial-modal" tabindex="-1" role="dialog" aria-labelledby="tutorial-modal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tutorial-title">Tutorial</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        {% text_setting "tutorial_text" %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
 {% block breadcrumbs %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -127,4 +150,15 @@ THIS IS USED BY THE SITE
             setCookieForeverish("noticed_cookies", "true")
         })
     </script>
+    {% if user.is_authenticated and not user.member.seen_tutorial %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $('#tutorial-modal').modal();
+                $.get("/tutorial-done");
+            });
+        </script>
+        <style>
+            {% text_setting "tutorial_css" %}
+        </style>
+    {% endif %}
 {% endblock %}

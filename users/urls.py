@@ -42,6 +42,9 @@ urlpatterns = [
     path('user/me/achievements/',
          views.MyAchievements.as_view(),
          name='my_achievements'),
+     
+    path('tutorial/', views.Tutorial.as_view(), name='tutorial'),
+    path('tutorial-done/', views.TutorialDone.as_view(), name='tutorial_done'),
 
     # API stuff
     path('user/allmembers/', views.allmembers, name='allmembers'),
