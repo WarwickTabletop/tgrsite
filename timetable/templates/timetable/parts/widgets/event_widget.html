@@ -9,10 +9,9 @@
         </h4>
         <div class="card-body">
             {% for event in events %}
-                {% room_link event.room as link %}
                 <p class="card-text">
                     <strong>{% if event.url %}<a href="{{ event.url }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</strong>
-                    ({% if event.room %}{% if link %}<a class="card-link" target="_blank" rel="noopener noreferrer" href="{{ link }}">{{ event.room }}</a>{% else %}{{ event.room }}{% endif %},
+                    ({% if event.room %}{% room_link event.room "card-text" %},
                 {% endif %}Week {{ event.week }}, {{ event.display_date }})
                 </p>
             {% endfor %}
