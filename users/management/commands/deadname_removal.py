@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.core.management.color import supports_color
 
 from newsletters.models import Newsletter
 from pages.models import Page
@@ -132,7 +133,7 @@ If you provide the name in Titlecase (e.g. Bob or MacDonald), it will respect th
         parser.add_argument("realname", type=str)
 
     def handle(self, *args, **options):
-        self.extra_prints = options['no_color']
+        self.extra_prints = options['no_color'] or not supports_color()
         self.stdout.write("""This program is for finding and replacing deadnames present on the website.
 This comes with a few disclaimers, which you """ + self.style.NOTICE("must") + """ heed:
 1. This does a simple find-and-replace over various parts of the website -
