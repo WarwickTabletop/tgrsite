@@ -31,11 +31,6 @@ identifies it.""")
             confirm = getpass("Please enter that information again: ")
         for m in Message.objects.filter(sender=user.member):
             if m.content.find(sensitive) != -1:
-                title = m.thread.title
-                if title is None or title == '':
-                    members = list(m.thread.participants.all())
-                    member_usernames = map(lambda member: member.equiv_user.username, members)
-                    title = ",".join(member_usernames)
                 self.stdout.write(f"Message {m.thread} censored:\n{self.style.SUCCESS(m.content.replace(sensitive, '*' * len(sensitive)))}")
                 m.content = "(This message has been censored.)"
                 m.save()
