@@ -24,26 +24,27 @@ THIS IS USED BY THE SITE
 
 {% block modal %}
     {% if user.is_authenticated and not user.member.seen_tutorial %}
-    <div class="modal fade bd-example-modal-lg" id="tutorial-modal" tabindex="-1" role="dialog" aria-labelledby="tutorial-modal" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="tutorial-title">Tutorial</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        {% text_setting "tutorial_text" %}
+        <div class="modal fade bd-example-modal-lg" id="tutorial-modal" tabindex="-1" role="dialog"
+             aria-labelledby="tutorial-modal" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tutorial-title">Tutorial</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            {% text_setting "tutorial_text" %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     {% endif %}
 {% endblock %}
 
@@ -100,7 +101,9 @@ THIS IS USED BY THE SITE
                             Settings</a></li>
                         <li><a class="card-link" href="{% url 'users:logout' %}">Log out</a></li>
                     {% else %}
-                        <li><a class="card-link" href="{% url 'users:login' %}">Log in</a> / <a class="card-link ml-0" href="{% url 'users:signup' %}">Register</a></li>
+                        <li><a class="card-link" href="{% url 'users:login' %}">Log in</a> / <a class="card-link ml-0"
+                                                                                                href="{% url 'users:signup' %}">Register</a>
+                        </li>
                     {% endif %}
                     <li><a class="card-link" href="{% string_setting "bug_tracker" %}">Report a Bug</a></li>
                 </ul>
@@ -154,9 +157,29 @@ THIS IS USED BY THE SITE
     </script>
     {% if user.is_authenticated and not user.member.seen_tutorial %}
         <script type="text/javascript">
-            $(document).ready(function(){
+            // This exact code is also in the markdown editor (but munged, so not useful here),
+            // and in both cases should be replaced with https://github.com/js-cookie/js-cookie/
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            const csrftoken = getCookie('csrftoken');
+
+            $(document).ready(function () {
                 $('#tutorial-modal').modal();
-                $.get("/tutorial-done");
+                $.post("/tutorial-done/", {headers: {'X-CSRFToken': csrftoken}});
             });
         </script>
         <style>
