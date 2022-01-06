@@ -137,6 +137,8 @@ THIS IS USED BY THE SITE
     {# Typeahead #}
     <script src="{% static 'bootstrap3-typeahead.min.js' %}"></script>
     {# Markdown editor #}
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
+            integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
     <script src="{% static "markdown-editor.min.js" %}"></script>
     <script>
         $(document).ready(function () {
@@ -157,29 +159,9 @@ THIS IS USED BY THE SITE
     </script>
     {% if user.is_authenticated and not user.member.seen_tutorial %}
         <script type="text/javascript">
-            // This exact code is also in the markdown editor (but munged, so not useful here),
-            // and in both cases should be replaced with https://github.com/js-cookie/js-cookie/
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        // Does this cookie string begin with the name we want?
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-
-            const csrftoken = getCookie('csrftoken');
-
             $(document).ready(function () {
                 $('#tutorial-modal').modal();
-                $.post("/tutorial-done/", {headers: {'X-CSRFToken': csrftoken}});
+                $.post("/tutorial-done/", {headers: {'X-CSRFToken': Cookies.get('csrftoken')}});
             });
         </script>
         <style>
