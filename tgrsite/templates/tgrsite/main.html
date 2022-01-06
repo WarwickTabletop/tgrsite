@@ -23,6 +23,7 @@ THIS IS USED BY THE SITE
 {% endblock %}
 
 {% block modal %}
+    {% if user.is_authenticated and not user.member.seen_tutorial %}
     <div class="modal fade bd-example-modal-lg" id="tutorial-modal" tabindex="-1" role="dialog" aria-labelledby="tutorial-modal" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -43,6 +44,7 @@ THIS IS USED BY THE SITE
             </div>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block breadcrumbs %}
