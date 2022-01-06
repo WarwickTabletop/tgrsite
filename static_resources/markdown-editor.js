@@ -284,6 +284,7 @@ function length(str) {
                 if (tag.block && (selection.start.line - 1) >= 0 && lines[selection.start.line - 1] !== "") {
                     lines[selection.start.line] = "\n" + lines[selection.start.line];
                     start_delta += 1;
+                    end_delta += 1;
                 }
                 if (tag.block && (selection.end.line + 1) <= lines.length && lines[selection.end.line + 1] !== "") {
                     lines[selection.end.line] = lines[selection.end.line] + "\n";
