@@ -32,12 +32,7 @@
                 {% for booking in timetable.weeks.all|for_event:event %}
                     <td class="text-center align-middle" colspan="{{ booking.0 }}">
                         {% if booking.1 %}
-                            {% room_link booking.1 as link %}
-                            {% if link %}
-                                <a target="_blank" rel="noopener noreferrer" href="{{ link }}">{{ booking.1 }}</a>
-                            {% else %}
-                                {{ booking.1 }}
-                            {% endif %}
+                            {% room_link booking.1 "" %}
                         {% else %}
                             Not running
                         {% endif %}

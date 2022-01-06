@@ -1,0 +1,18 @@
+{% extends 'tgrsite/main.html' %}
+{% load property_tags %}
+{% block title %}Tutorial{% endblock %}
+{% block pagetitle %}Tutorial{% endblock %}
+{% block breadcrumbs_child %}Tutorial{% endblock %}
+
+{% block body %}
+<div id="tutorial-modal">
+    {% text_setting "tutorial_text" %}
+</div>
+{% endblock %}
+
+{% block bottomscripts %}
+    {{ block.super }}
+    <style>
+        {% text_setting "tutorial_css" %}
+    </style>
+{% endblock %}
