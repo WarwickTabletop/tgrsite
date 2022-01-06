@@ -268,7 +268,7 @@ class Tutorial(TemplateView):
     template_name = "tutorial.html"
 
 class TutorialDone(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         request.user.member.seen_tutorial = True
         request.user.member.save()
         return HttpResponse()
