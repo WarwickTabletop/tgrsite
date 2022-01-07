@@ -140,8 +140,8 @@ function length(str) {
                     line: true, block: true
                 },
                 custom: {
-                    start: '', end: ' {.custom-class-here}', placeholder: '',
-                    line: true, block: true
+                    start: '', end: '{.custom-class-here}', placeholder: '',
+                    line: true, block: false
                 }
             };
 
