@@ -212,9 +212,11 @@ function length(str) {
                     controls.find('.fa-eye').removeClass('fa-eye').addClass(stalePreviewIcon);
                     createPreview(txt, previewSource, endpoint);
                 } else {
-                    if (!isFull) previewSource.find('.preview').slideUp();
-                    controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
-                    stale = true;
+                    if (!isFull) {
+                        previewSource.find('.preview').slideUp();
+                        controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                        stale = true;
+                    }
                 }
                 return true;
             };
