@@ -88,7 +88,7 @@ function length(str) {
                     line: false, block: false
                 },
                 h1: {
-                    start: '# ', end: '', placeholder: 'Your header',
+                    start: '#', end: '', placeholder: ' Your header',
                     line: true, block: false
                 },
                 h2news: {
