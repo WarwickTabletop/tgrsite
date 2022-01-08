@@ -49,13 +49,15 @@ THIS IS USED BY THE SITE
 {% endblock %}
 
 {% block breadcrumbs %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            {% block breadcrumbs_parents %}
-            {% endblock %}
-            <li class="breadcrumb-item active" aria-current="page">{% block breadcrumbs_child %}{% endblock %}</li>
-        </ol>
-    </nav>
+    {% if not no_breadcrumbs %}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% block breadcrumbs_parents %}
+                {% endblock %}
+                <li class="breadcrumb-item active" aria-current="page">{% block breadcrumbs_child %}{% endblock %}</li>
+            </ol>
+        </nav>
+    {% endif %}
 {% endblock %}
 
 {% block messages %}

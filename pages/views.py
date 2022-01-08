@@ -14,6 +14,12 @@ class ViewPage(UserPassesTestMixin, generic.DetailView):
     context_object_name = 'page'
     template_name = "pages/page.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.get_object().breadcrumb_child == "":
+            context["no_breadcrumbs"] = True
+        return context
+
     def test_func(self):
         if not self.test_page_perms():
             return False
