@@ -8,5 +8,65 @@
 {% block breadcrumbs_child %}New{% endblock %}
 
 {% block body %}
-    {% include "parts/render_form.html" %}
+<!-- Modal -->
+<div class="modal fade" id="helpmodal" tabindex="-1" role="dialog" aria-labelledby="helpmodal" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpmodaltitle">Editor Help</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h2>What's this editor?</h2>
+                <p>This is a Markdown editor, which allows you to write the newsletter using Markdown.
+                    There are also a variety of shortcut buttons for common actions, such as creating headers, images and formatting text.
+                    If you're unfamiliar with Markdown but familiar with Discord formatting, you actually know some Markdown already -
+                    formatting text is done exactly the same way, e.g. <code>**bold**</code>, <code>*italics*</code> and so on!
+                    Otherwise I'd recommend looking at a Markdown tutorial such as <a href="https://www.markdownguide.org/cheat-sheet">this one</a>.
+                </p>
+                <h2>What are classes?</h2>
+                <p>One of the rarer operations supported by our Markdown renderer is custom classes.
+                    These are added to various elements to change how they are rendered.
+                    You can add one of these using the <code>{.class-name-here}</code> syntax, or by clicking the custom classes button.</p>
+                <p>In general, you shouldn't have to add your own custom classes as the most common ones have buttons provided.
+                    However, there are a few that you might want to add, which are listed below.
+                </p>
+                <ul>
+                    <li><code>.news-bg</code> adds a background to the associated header.
+                        You should use this with every heading, and if you click the Header button it will do this for you.
+                        An example is as follows: <code>## My Great Heading {.news-bg-1}</code> - note the space between the heading and class.</li>
+                    <li><code>.news-image-left</code> and <code>.news-image-right</code> make an image float to that side and take up half of the width.
+                        This allows text to appear next to an image! There are also buttons on the toolbar that do this.
+                        An example is as follows: <code>![my great image](url){.news-image-left}</code> - note the lack of a space between the iamge and class.
+                        (I don't know why this differs, but we'll just have to deal with it.)</li>
+                    <li><code>.news-width-1</code> to <code>.news-width-5</code> set the size of an image. (1 is the smallest.)
+                        You can combine this with other classes:
+                        <code>{.news-image-left .news-width-1}</code> both makes the image float to the left and sets its width.</li>
+                    <li><code>.clearfix</code> creates a section break. (There's also a button for this.)
+                        This means that if the text next to an image is shorter than the image,
+                        blank space will be left below that text to make the next text start after the bottom of the image.</li>
+                </ul>
+                <p>The Web Admin has details of this in their guide, so please ask them if you have any issues!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="container-fluid">
+            {% include "parts/render_form.html" %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="container-fluid full-preview">
+            <div class="preview"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
