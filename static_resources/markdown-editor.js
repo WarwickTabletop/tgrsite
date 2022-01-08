@@ -149,13 +149,13 @@ function length(str) {
             let txt = this,                          // textarea element
                 stale = true,
                 endpoint = $(this).data("endpoint") || "/api/md_preview/",
-                controls = $('<div class="controls" id="' + txt.id + '-controls" />'); // button container
-                stalePreviewIcon = 'fa-eye-slash'
+                controls = $('<div class="controls" id="' + txt.id + '-controls" />'), // button container
+                stalePreviewIcon = 'fa-eye-slash',
                 previewSource = controls;
             
             if (isFull) {
                 previewSource = $('.full-preview');
-                stalePreviewIcon = 'fa-check'
+                stalePreviewIcon = 'fa-check';
             }
             
             const format_classes = "btn btn-light";
