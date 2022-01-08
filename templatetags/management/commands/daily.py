@@ -11,7 +11,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         doSummaryNotificationMailings()
-        MessageThread.objects.annotate(Count("message")).filter(message__count=0).all().delete()
+        MessageThread.objects.annotate(Count("message")).filter(
+            message__count=0).all().delete()
         self.stdout.write('Messages Thread Cleaned')
         updateMemberships()
         self.stdout.write('Memberships updated')

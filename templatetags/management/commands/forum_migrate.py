@@ -12,7 +12,8 @@ class Command(BaseCommand):
         for thread in Thread.objects.all():
             i += 1
             if i % 20 == 0:
-                self.stdout.write('Progress: {:4.1f}%'.format((i * 100) / count))
+                self.stdout.write(
+                    'Progress: {:4.1f}%'.format((i * 100) / count))
             authors = thread.get_all_authors()
             for member in authors:
                 if member not in thread.subscribed.all():

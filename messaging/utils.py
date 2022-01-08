@@ -20,8 +20,10 @@ def visible(value):
     text = text.replace("`", "")
     # Yay! REGEX!!! I recommend regexr.com to work out what this means:
     text = re.sub(r"{[^{}\n\r]*}", "", text)  # Remove { blarg } attr blocks
-    text = re.sub(r"!\[([^\]\[]*)\]\(([^()]*)\)", r"", text)  # Strip image links
-    text = re.sub(r"\[([^\]\[]*)\]\(", r"\1: (", text)  # Convert square bracket links to colon
+    text = re.sub(r"!\[([^\]\[]*)\]\(([^()]*)\)",
+                  r"", text)  # Strip image links
+    # Convert square bracket links to colon
+    text = re.sub(r"\[([^\]\[]*)\]\(", r"\1: (", text)
     text = re.sub(r"\\(.)", r"\1", text)  # Remove escaping from chars
     if len(text) > 2 and text[0:1] == "\r\n":
         text = text[2:]

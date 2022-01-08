@@ -47,7 +47,8 @@ class Record(models.Model):
     image = models.URLField(blank=True)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     acquired = models.DateField(blank=True, null=True)
-    owner = models.ForeignKey(users.Member, on_delete=models.PROTECT, blank=True, null=True)  # Set if not the society's
+    owner = models.ForeignKey(users.Member, on_delete=models.PROTECT,
+                              blank=True, null=True)  # Set if not the society's
 
     class Meta:
         ordering = ['name']
@@ -78,10 +79,13 @@ class Record(models.Model):
 class Suggestion(models.Model):
     name = models.CharField(max_length=40)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
-    requester = models.ForeignKey(users.Member, on_delete=models.SET_NULL, null=True, blank=True)  # Have to delete
+    requester = models.ForeignKey(
+        users.Member, on_delete=models.SET_NULL, null=True, blank=True)  # Have to delete
     # users without deleting their request
-    justification = models.TextField(verbose_name="Why should we buy this item?", blank=True)
-    context = models.TextField(verbose_name="How did you discover it?", blank=True)
+    justification = models.TextField(
+        verbose_name="Why should we buy this item?", blank=True)
+    context = models.TextField(
+        verbose_name="How did you discover it?", blank=True)
     link = models.URLField(blank=True, help_text="A link to where the item can be purchased. Please check Zatu for "
                                                  "availability first.")
     archived = models.BooleanField(default=False)
@@ -103,7 +107,8 @@ class Loan(models.Model):
         EXPIRED = 5
 
     requester = models.ForeignKey(users.Member, on_delete=models.PROTECT)
-    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, related_name="inventory_loans")
+    inventory = models.ForeignKey(
+        Inventory, on_delete=models.CASCADE, related_name="inventory_loans")
     items = models.ManyToManyField(Record)
     start_date = models.DateField()
     end_date = models.DateField()

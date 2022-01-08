@@ -56,7 +56,8 @@ class IDTicketView(PermissionRequiredMixin, FormView):
             try:
                 membership = Membership.objects.get(uni_id=uniid.lstrip('u'))
                 for election in form.cleaned_data['elections']:
-                    Ticket.objects.get_or_create(member_id=membership.member_id, election=election)
+                    Ticket.objects.get_or_create(
+                        member_id=membership.member_id, election=election)
             except Membership.DoesNotExist:
                 pass
         return super().form_valid(form)
@@ -71,7 +72,8 @@ class DateTicketView(PermissionRequiredMixin, FormView):
     def form_valid(self, form):
         for membership in Membership.objects.filter(checked__lte=form.cleaned_data['date']):
             for election in form.cleaned_data['elections']:
-                Ticket.objects.get_or_create(member_id=membership.member_id, election=election)
+                Ticket.objects.get_or_create(
+                    member_id=membership.member_id, election=election)
         return super().form_valid(form)
 
 
@@ -84,7 +86,8 @@ class AllTicketView(PermissionRequiredMixin, FormView):
     def form_valid(self, form):
         for member in Member.objects.filter(equiv_user__is_active=True):
             for election in form.cleaned_data['elections']:
-                Ticket.objects.get_or_create(member_id=member.id, election=election)
+                Ticket.objects.get_or_create(
+                    member_id=member.id, election=election)
         return super().form_valid(form)
 
 
@@ -97,9 +100,11 @@ class UsernameTicketView(PermissionRequiredMixin, FormView):
     def form_valid(self, form):
         for username in form.cleaned_data['ids'].split():
             try:
-                member = Member.objects.get(equiv_user__username__iexact=username.strip())
+                member = Member.objects.get(
+                    equiv_user__username__iexact=username.strip())
                 for election in form.cleaned_data['elections']:
-                    Ticket.objects.get_or_create(member_id=member.id, election=election)
+                    Ticket.objects.get_or_create(
+                        member_id=member.id, election=election)
             except Member.DoesNotExist:
                 pass
         return super().form_valid(form)
@@ -114,7 +119,8 @@ class UserTicketView(PermissionRequiredMixin, FormView):
     def form_valid(self, form):
         for member in form.cleaned_data['members']:
             for election in form.cleaned_data['elections']:
-                Ticket.objects.get_or_create(member_id=member.id, election=election)
+                Ticket.objects.get_or_create(
+                    member_id=member.id, election=election)
         return super().form_valid(form)
 
 
@@ -149,7 +155,8 @@ class CreateCandidate(PermissionRequiredMixin, CreateView):
         return reverse("votes:update_election", args=[self.kwargs['election']])
 
     def form_valid(self, form):
-        form.instance.election = get_object_or_404(Election, id=self.kwargs['election'])
+        form.instance.election = get_object_or_404(
+            Election, id=self.kwargs['election'])
         return super().form_valid(form)
 
 
@@ -233,7 +240,8 @@ class ApprovalResultView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data(**kwargs)
         ctxt['election'] = self.election
-        ctxt['choices'] = sorted(ctxt['choices'], key=lambda x: -x.votes().count())
+        ctxt['choices'] = sorted(
+            ctxt['choices'], key=lambda x: -x.votes().count())
         return ctxt
 
 
@@ -249,7 +257,8 @@ class ApprovalVoteView(UserPassesTestMixin, TemplateView):
 
     def post(self, request, **kwargs):
         self.get_context_data(**kwargs)
-        ticket = get_object_or_404(request.user.member.ticket_set.all(), election=self.election, spent=False)
+        ticket = get_object_or_404(
+            request.user.member.ticket_set.all(), election=self.election, spent=False)
         print(request.POST)
         errors = []
         if "selection" not in request.POST:
@@ -309,7 +318,8 @@ class FPTPResultView(PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data(**kwargs)
         ctxt['election'] = self.election
-        ctxt['choices'] = sorted(ctxt['choices'], key=lambda x: -x.votes().count())
+        ctxt['choices'] = sorted(
+            ctxt['choices'], key=lambda x: -x.votes().count())
         return ctxt
 
 
@@ -325,7 +335,8 @@ class FPTPVoteView(UserPassesTestMixin, TemplateView):
 
     def post(self, request, **kwargs):
         self.get_context_data(**kwargs)
-        ticket = get_object_or_404(request.user.member.ticket_set.all(), election=self.election, spent=False)
+        ticket = get_object_or_404(
+            request.user.member.ticket_set.all(), election=self.election, spent=False)
         print(request.POST)
         errors = []
         if "selection" not in request.POST:
@@ -384,8 +395,10 @@ class STVResultView(PermissionRequiredMixin, ListView):
         try:
             res = self.election.stvresult
         except STVResult.DoesNotExist:
-            candidates = set(map(attrgetter('id'), self.election.candidate_set.all()))
-            withdrawn = set(map(attrgetter('id'), self.election.candidate_set.filter(state=Candidate.State.WITHDRAWN)))
+            candidates = set(
+                map(attrgetter('id'), self.election.candidate_set.all()))
+            withdrawn = set(map(attrgetter('id'), self.election.candidate_set.filter(
+                state=Candidate.State.WITHDRAWN)))
             votes = []
             for i in self.election.stvvote_set.all():
                 vote = []
@@ -396,7 +409,8 @@ class STVResultView(PermissionRequiredMixin, ListView):
             calc = StvCalculator(candidates, votes, self.election.seats)
             calc.withdraw(withdrawn)
             calc.full_election()
-            res = STVResult.objects.create(election=self.election, full_log="\n".join(calc.fulllog))
+            res = STVResult.objects.create(
+                election=self.election, full_log="\n".join(calc.fulllog))
             res.save()
             res.winners.add(*Candidate.objects.filter(id__in=calc.winners()))
         ctxt['result'] = res
@@ -409,19 +423,22 @@ class STVVoteView(UserPassesTestMixin, TemplateView):
     def test_func(self):
         if self.request.user.is_anonymous:
             return False
-        self.election = get_object_or_404(Election, id=self.kwargs['election'], open=True, vote_type=Election.Types.STV)
+        self.election = get_object_or_404(
+            Election, id=self.kwargs['election'], open=True, vote_type=Election.Types.STV)
         return self.request.user.member.ticket_set.filter(election=self.election, spent=False).exists()
 
     def post(self, request, **kwargs):
         self.get_context_data(**kwargs)
-        ticket = get_object_or_404(request.user.member.ticket_set.all(), election=self.election, spent=False)
+        ticket = get_object_or_404(
+            request.user.member.ticket_set.all(), election=self.election, spent=False)
         print(request.POST)
         errors = []
         allowed = set(a.id for a in self.election.candidate_set.all())
 
         # Almost all of these errors should never be seen (unless someone is bypassing the js)
         submitted_candidates = set(request.POST.keys())
-        submitted_candidates.remove('csrfmiddlewaretoken')  # remove csrf token (the only valid non-vote value)
+        # remove csrf token (the only valid non-vote value)
+        submitted_candidates.remove('csrfmiddlewaretoken')
         try:
             submitted_candidates = set(map(int, submitted_candidates))
         except ValueError:
@@ -446,7 +463,8 @@ class STVVoteView(UserPassesTestMixin, TemplateView):
         if len(selection) != len(set(map(itemgetter(1), selection))):
             errors.append("Invalid preference (repeated)")
         if len(selection) == 0:
-            errors.append("Please select at least one candidate")  # This one is actually possible
+            # This one is actually possible
+            errors.append("Please select at least one candidate")
 
         if errors:
             return self.get(request, errors=set(errors), previous=request.POST)
@@ -457,7 +475,8 @@ class STVVoteView(UserPassesTestMixin, TemplateView):
             )
             vote.save()
             for i in selection:
-                STVPreference.objects.create(stvvote=vote, candidate_id=i[0], order=i[1])
+                STVPreference.objects.create(
+                    stvvote=vote, candidate_id=i[0], order=i[1])
 
             ticket.spent = True
             ticket.save()
@@ -467,7 +486,8 @@ class STVVoteView(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data(**kwargs)
-        self.election = get_object_or_404(Election, id=self.kwargs['election'], open=True, vote_type=Election.Types.STV)
+        self.election = get_object_or_404(
+            Election, id=self.kwargs['election'], open=True, vote_type=Election.Types.STV)
         ctxt['election'] = self.election
         ctxt['choices'] = list(self.election.candidate_set.all())
         random.shuffle(ctxt['choices'])

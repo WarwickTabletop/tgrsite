@@ -54,11 +54,13 @@ class UserForm(ModelForm):
             raise ValidationError('')
 
         if len(data['username']) > 32:
-            self.add_error('username', ValidationError('Username must be 32 characters or fewer.'))
+            self.add_error('username', ValidationError(
+                'Username must be 32 characters or fewer.'))
 
 
 class SignupForm(ModelForm):
-    captcha = CharField(max_length=32, label="Something went wrong generating a captcha. Please contact the web admin")
+    captcha = CharField(
+        max_length=32, label="Something went wrong generating a captcha. Please contact the web admin")
     captcha_token = CharField(widget=HiddenInput)
 
     class Meta:
@@ -95,7 +97,8 @@ class SignupForm(ModelForm):
 class MemberForm(ModelForm):
     class Meta:
         model = Member
-        fields = ['discord', 'pronoun', 'bio', 'signature', 'official_photo_url', 'dark']
+        fields = ['discord', 'pronoun', 'bio',
+                  'signature', 'official_photo_url', 'dark']
 
         widgets = {
             'discord': TextInput(attrs=BOOTSTRAP_FORM_WIDGET_attrs),

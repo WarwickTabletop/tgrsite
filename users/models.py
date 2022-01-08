@@ -41,12 +41,16 @@ class Member(models.Model):
 
     equiv_user = models.OneToOneField(User, on_delete=models.CASCADE)
     discord = models.CharField(max_length=100, blank=True)
-    pronoun = models.CharField(max_length=50, blank=True, verbose_name="pronouns")
+    pronoun = models.CharField(
+        max_length=50, blank=True, verbose_name="pronouns")
     bio = models.TextField(max_length=4096, blank=True)
     signature = models.TextField(max_length=1024, blank=True)
-    official_photo_url = models.CharField(max_length=512, null=True, blank=True)
-    dark = models.BooleanField(default=False, help_text="Enable Dark Mode(beta) on this account")
-    seen_tutorial = models.BooleanField(default=False, help_text="Whether this user has seen the tutorial yet.")
+    official_photo_url = models.CharField(
+        max_length=512, null=True, blank=True)
+    dark = models.BooleanField(
+        default=False, help_text="Enable Dark Mode(beta) on this account")
+    seen_tutorial = models.BooleanField(
+        default=False, help_text="Whether this user has seen the tutorial yet.")
 
     def gravatar(self, size=128):
         h = hashlib.md5(
@@ -125,12 +129,14 @@ class Member(models.Model):
 
 
 class Membership(models.Model):
-    uni_id = models.CharField(max_length=7, validators=[validators.RegexValidator(r'^[0-9]{7}$')])
+    uni_id = models.CharField(max_length=7, validators=[
+                              validators.RegexValidator(r'^[0-9]{7}$')])
     uni_email = models.EmailField()
     active = models.BooleanField(default=False)
     verified = models.BooleanField(default=False)
     checked = models.DateField(blank=True, null=True)
-    member = models.OneToOneField(Member, on_delete=models.CASCADE, related_name="membership")
+    member = models.OneToOneField(
+        Member, on_delete=models.CASCADE, related_name="membership")
 
     def __str__(self):
         return self.uni_id + ": " + self.member.username
@@ -143,9 +149,11 @@ def generate_token():
 class VerificationRequest(models.Model):
     token = models.CharField(default=generate_token, max_length=100)
     datetime = models.DateTimeField(auto_now=True)
-    uni_id = models.CharField(max_length=7, validators=[validators.RegexValidator(r'^[0-9]{7}$')])
+    uni_id = models.CharField(max_length=7, validators=[
+                              validators.RegexValidator(r'^[0-9]{7}$')])
     uni_email = models.EmailField()
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="verifications")
+    member = models.ForeignKey(
+        Member, on_delete=models.CASCADE, related_name="verifications")
 
     def __str__(self):
         return self.uni_id + ": " + self.member.username
@@ -165,7 +173,8 @@ class Achievement(models.Model):
     description = models.CharField(max_length=100)
     members = models.ManyToManyField(Member, through=AchievementAward)
     trigger_name = models.CharField(max_length=20, unique=True)
-    image = models.ForeignKey(VisualAsset, on_delete=models.SET_NULL, blank=True, null=True)
+    image = models.ForeignKey(
+        VisualAsset, on_delete=models.SET_NULL, blank=True, null=True)
     fa_icon = models.CharField(max_length=50, default="fa-medal",
                                validators=(validators.RegexValidator("^fa-", message="Please ensure that the icon name "
                                                                                      "includes the fa- prefix"),

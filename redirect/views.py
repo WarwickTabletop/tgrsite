@@ -11,7 +11,8 @@ def redirect(request, source):
     sink.usages += 1
     sink.save()
     if sink.achievement and not request.user.is_anonymous:
-        give_this_achievement_once(request.user.member, sink.achievement, request=request)
+        give_this_achievement_once(
+            request.user.member, sink.achievement, request=request)
     if sink.permanent:
         return HttpResponsePermanentRedirect(sink.sink)
     else:

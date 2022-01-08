@@ -13,7 +13,8 @@ from .forms import MeetingForm
 
 class PermissionRequiredMixin(PRMBase):
     def handle_no_permission(self):
-        messages.add_message(self.request, messages.ERROR, "You don't have permission to perform that action.")
+        messages.add_message(self.request, messages.ERROR,
+                             "You don't have permission to perform that action.")
         if self.raise_exception or self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("minutes:index"))
         return redirect_to_login(self.request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
@@ -55,7 +56,8 @@ class MeetingDetail(DetailView):
         ctxt = super().get_context_data(**kwargs)
         meetings = list(Meeting.objects.order_by('date'))
         index_of = meetings.index(self.object)
-        ctxt['next'] = meetings[index_of + 1] if index_of + 1 < len(meetings) else None
+        ctxt['next'] = meetings[index_of + 1] if index_of + \
+            1 < len(meetings) else None
         ctxt['prev'] = meetings[index_of - 1] if index_of - 1 >= 0 else None
         return ctxt
 

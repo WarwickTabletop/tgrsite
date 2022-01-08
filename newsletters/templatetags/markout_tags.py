@@ -27,8 +27,10 @@ def tidy_md(value):
     text = text.replace("`", "|")
     # Yay! REGEX!!! I recommend regexr.com to work out what this means:
     text = re.sub(r"{[^{}\n\r]*}", "", text)  # Remove { blarg } attr blocks
-    text = re.sub(r"!\[([^\]\[]*)\]\(([^()]*)\)", r"Image: \1", text)  # Strip image links
-    text = re.sub(r"\[([^\]\[]*)\]\(", r"\1: (", text)  # Convert square bracket links to colon
+    text = re.sub(r"!\[([^\]\[]*)\]\(([^()]*)\)",
+                  r"Image: \1", text)  # Strip image links
+    # Convert square bracket links to colon
+    text = re.sub(r"\[([^\]\[]*)\]\(", r"\1: (", text)
     text = re.sub(r"\\(.)", r"\1", text)  # Remove escaping from chars
     while "\r\n\r\n\r\n" in text:
         text = text.replace("\r\n\r\n\r\n", "\r\n")

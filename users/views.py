@@ -33,7 +33,8 @@ def get_achievements_with_merged(object):
             result[mapping[key]]['achieved_at'].append(achiev.achieved_at)
         else:
             mapping[key] = len(result)
-            result.append({'achievement': achiev.achievement, 'achieved_at': [achiev.achieved_at]})
+            result.append({'achievement': achiev.achievement,
+                          'achieved_at': [achiev.achieved_at]})
     return result
 
 
@@ -52,7 +53,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
         ctxt.update({'recent_threads': Thread.objects.filter(author__id=pk).order_by('-pub_date')[:3],
                      'recent_responses': Response.objects.filter(author__id=pk).order_by('-pub_date')[:3],
                      'rpgs': Rpg.objects.visible(self.request.user.member).filter(game_masters__id=pk, is_in_the_past=False)
-                        .order_by('published', '-pinned', '-created_at')[:10],
+                     .order_by('published', '-pinned', '-created_at')[:10],
                      'achievements': achievements[:5],
                      'achievement_count': len(achievements),
                      'achievement_total': Achievement.objects.filter(is_fair=True).count()})
@@ -82,11 +83,14 @@ class Edit(LoginRequiredMixin, View):
         if memberform.is_valid() & userform.is_valid():
             memberform.save()
             userform.save()
-            add_message(request, messages.SUCCESS, "Profile successfully updated.")
+            add_message(request, messages.SUCCESS,
+                        "Profile successfully updated.")
             if request.POST["discord"]:
-                give_achievement_once(request.user.member, "discord", request=request)
+                give_achievement_once(
+                    request.user.member, "discord", request=request)
             if request.POST["pronoun"]:
-                give_achievement_once(request.user.member, "pronoun", request=request)
+                give_achievement_once(
+                    request.user.member, "pronoun", request=request)
             return HttpResponseRedirect(reverse('users:me'))
         else:
             context = {
@@ -98,7 +102,8 @@ class Edit(LoginRequiredMixin, View):
 
 class Login(LoginView):
     template_name = "users/login.html"
-    redirect_authenticated_user = True  # A very slight privacy risk. Negligible for our site...
+    # A very slight privacy risk. Negligible for our site...
+    redirect_authenticated_user = True
 
     def form_valid(self, form):
         add_message(self.request, messages.SUCCESS, "Successfully logged in!")
@@ -125,7 +130,8 @@ class ChangePassword(PasswordChangeView):
 
 class PasswordResetConfirm(PasswordResetConfirmView):
     def get_success_url(self):
-        add_message(self.request, messages.SUCCESS, "Password Reset Successfully")
+        add_message(self.request, messages.SUCCESS,
+                    "Password Reset Successfully")
         return reverse("users:login")
 
 
@@ -163,7 +169,8 @@ class Signup(FormView):
         return form
 
     def form_valid(self, form):
-        spawn_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
+        spawn_user(form.cleaned_data['username'],
+                   form.cleaned_data['email'], form.cleaned_data['password'])
         auth = authenticate(self.request, username=form.cleaned_data['username'],
                             password=form.cleaned_data['password'])
         if auth is None:
@@ -223,7 +230,8 @@ class AllAchievements(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data(**kwargs)
         awards = get_achievements_with_merged(self.object)
-        nonachievements = Achievement.objects.exclude(achievementaward__member=self.object).filter(is_hidden=False)
+        nonachievements = Achievement.objects.exclude(
+            achievementaward__member=self.object).filter(is_hidden=False)
         nonawards = [{"achievement": i} for i in nonachievements]
         achievements = list(awards) + nonawards
         ctxt.update({'achievements': achievements,
@@ -232,6 +240,7 @@ class AllAchievements(LoginRequiredMixin, DetailView):
                      'is_yours': self.object == self.request.user.member,
                      'name': self.object.equiv_user.username})
         return ctxt
+
 
 class MyAchievements(AllAchievements):
     def get_object(self, queryset=None):
@@ -257,15 +266,19 @@ class VerifyConfirm(View):
                 m.checked = timezone.now()
                 m.save()
                 v.member.verifications.all().delete()
-                add_message(request, messages.SUCCESS, "You have successfully verified your membership.")
-                give_achievement(v.member, "verify_membership", request=request)
+                add_message(request, messages.SUCCESS,
+                            "You have successfully verified your membership.")
+                give_achievement(
+                    v.member, "verify_membership", request=request)
         except (VerificationRequest.DoesNotExist, KeyError):
-            add_message(request, messages.ERROR, "Verification Failed. Please try again.")
+            add_message(request, messages.ERROR,
+                        "Verification Failed. Please try again.")
         return HttpResponseRedirect(reverse("users:me"))
 
 
 class Tutorial(TemplateView):
     template_name = "tutorial.html"
+
 
 class TutorialDone(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
@@ -273,9 +286,11 @@ class TutorialDone(LoginRequiredMixin, View):
         request.user.member.save()
         return HttpResponse()
 
+
 @login_required
 def allmembers(request):
-    usernames = [x.username for x in User.objects.filter(is_active=True).order_by('username')]
+    usernames = [x.username for x in User.objects.filter(
+        is_active=True).order_by('username')]
     return JsonResponse(usernames, safe=False)
 
 

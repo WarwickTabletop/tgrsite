@@ -12,8 +12,10 @@ class Redirect(models.Model):
     source = models.CharField(max_length=50)
     sink = models.CharField(max_length=1024)
     permanent = models.BooleanField(default=False)
-    usages = models.PositiveIntegerField(default=0, help_text="The number of times that link has been used")
-    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    usages = models.PositiveIntegerField(
+        default=0, help_text="The number of times that link has been used")
+    achievement = models.ForeignKey(
+        Achievement, on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     def __str__(self):
         return self.source

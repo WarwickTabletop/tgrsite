@@ -112,7 +112,8 @@ class Thread(models.Model):
     author = models.ForeignKey(Member, on_delete=models.CASCADE)
 
     # people subscribed to updates
-    subscribed = models.ManyToManyField(Member, related_name="thread_notification_subscriptions")
+    subscribed = models.ManyToManyField(
+        Member, related_name="thread_notification_subscriptions")
 
     def __str__(self):
         return self.title

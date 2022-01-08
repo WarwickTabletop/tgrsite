@@ -12,7 +12,8 @@ def notify(member, notif_type, content, url, merge_key=None):
     sub, new = NotificationSubscriptions.objects.get_or_create(member=member)
     if sub.get_category_subscription(notif_type) != SubType.NONE:
         n = create_notification(member, notif_type, content, url, merge_key)
-        n.full_clean()  # Not strictly needed as all data is generated, but good practice...
+        # Not strictly needed as all data is generated, but good practice...
+        n.full_clean()
         n.save()
         delete_old(member)
 
@@ -34,7 +35,8 @@ def create_notification_if_subbed(member, notif_type, content, url, merge_key=No
 def delete_old(member):
     week_ago = timezone.now() - timedelta(days=7)
     year_ago = timezone.now() - timedelta(days=365)
-    Notification.objects.filter(member=member, is_unread=False, time__lt=week_ago).delete()
+    Notification.objects.filter(
+        member=member, is_unread=False, time__lt=week_ago).delete()
     Notification.objects.filter(member=member, time__lt=year_ago).delete()
 
 
@@ -47,7 +49,8 @@ def delete_all_old():
 
 
 def notify_bulk(members, notif_type, content, url, merge_key=None):
-    notifs = [create_notification_if_subbed(m, notif_type, content, url, merge_key) for m in members]
+    notifs = [create_notification_if_subbed(
+        m, notif_type, content, url, merge_key) for m in members]
     notifications = list(filter(None, notifs))
     Notification.objects.bulk_create(notifications)
     delete_all_old()
@@ -58,7 +61,8 @@ def notify_everybody(notif_type, content, url, merge_key=None):
 
 
 def notify_discord(content, member=None):
-    discord_url, new = StringProperty.objects.get_or_create(key="notifications_webhook_url")
+    discord_url, new = StringProperty.objects.get_or_create(
+        key="notifications_webhook_url")
     if discord_url.value != "":
         data = {'content': content}
         if member is not None:

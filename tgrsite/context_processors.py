@@ -17,8 +17,10 @@ def latestposts(request):
 
 
 def mergednavbar(request):
-    links = [{'sort': x.sort_index, 'element': x, 'drop': False} for x in BarItem.objects.all()]
-    drops = [{'sort': x.sort_index, 'element': x, 'drop': True} for x in BarDropdown.objects.all()]
+    links = [{'sort': x.sort_index, 'element': x, 'drop': False}
+             for x in BarItem.objects.all()]
+    drops = [{'sort': x.sort_index, 'element': x, 'drop': True}
+             for x in BarDropdown.objects.all()]
     return {
         'navbar': sorted(links + drops, key=itemgetter("sort"))
     }

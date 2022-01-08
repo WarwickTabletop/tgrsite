@@ -12,7 +12,8 @@ class Folder(models.Model):
                             help_text="Letters, numbers or underscores only",
                             validators=[RegexValidator("^[a-zA-Z0-9\.][a-zA-Z0-9-_]*$",
                                                        "This may only contain letters, numbers or underscores")])
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
 
     class Meta:
         unique_together = ('name', 'parent')
@@ -55,7 +56,8 @@ class Meeting(models.Model):
                             validators=[RegexValidator("^[a-zA-Z0-9][a-zA-Z0-9-_]*$",
                                                        "This may only contain letters, numbers or underscores")])
     title = models.CharField(max_length=80)
-    folder = models.ForeignKey(Folder, on_delete=models.SET_NULL, null=True, related_name="meetings")
+    folder = models.ForeignKey(
+        Folder, on_delete=models.SET_NULL, null=True, related_name="meetings")
     body = models.TextField()
     date = models.DateField(default=now)
     author = models.ForeignKey(users.Member, on_delete=models.PROTECT)

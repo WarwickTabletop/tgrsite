@@ -22,7 +22,8 @@ class Rpgs(TestCase):
         spawn_user('eve', 'eve@tagarople.com', 'XZVrUFm3oy')
         ash = spawn_user('ash', 'ash@sent.com', 'CSXgzrned3').member
 
-        rpg = Rpg(title='test case RPG', players_wanted=2, timeslot="Thursday", creator_id=ash.id)
+        rpg = Rpg(title='test case RPG', players_wanted=2,
+                  timeslot="Thursday", creator_id=ash.id)
         rpg.save()
         rpg.game_masters.add(ash)
         rpg.members.add(alice)

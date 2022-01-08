@@ -4,7 +4,8 @@ from users.models import Member
 
 
 class ExecRole(models.Model):
-    sort_index = models.IntegerField(default=0, help_text='Index for sorting. Lower value = earlier in list.')
+    sort_index = models.IntegerField(
+        default=0, help_text='Index for sorting. Lower value = earlier in list.')
     role_title = models.CharField(max_length=48)
     bio = models.TextField(blank=True,
                            help_text='Description of the role and what it entails, as well as a short personal bio.')

@@ -47,10 +47,11 @@ def room_link(r, _class):
             try:
                 roomlink = RoomLink.objects.get(room__iexact=simple)
             except (RoomLink.DoesNotExist, RoomLink.MultipleObjectsReturned):
-                roomlink = RoomLink.objects.filter(room__icontains=simple).first()
+                roomlink = RoomLink.objects.filter(
+                    room__icontains=simple).first()
         if roomlink is None:
             results.append(room)
         else:
             results.append(format_html('<a target="_blank" rel="noopener noreferrer" href="{}" class="{}">{}</a>',
-                roomlink.url, _class, room))
+                                       roomlink.url, _class, room))
     return mark_safe(",".join(results))

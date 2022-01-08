@@ -16,7 +16,8 @@ MD_INPUT = {
 
 
 class Respond(forms.Form):
-    message = forms.CharField(label="Message", widget=forms.Textarea(attrs=MD_INPUT))
+    message = forms.CharField(
+        label="Message", widget=forms.Textarea(attrs=MD_INPUT))
 
     def clean_message(self):
         # print("clean_message")
@@ -33,11 +34,13 @@ class QuickDM(forms.Form):
     recipient = forms.CharField(label="Recipient", max_length=100,
                                 widget=forms.TextInput(attrs={'class': 'add-member-input',
                                                               'autocomplete': 'off'}))
-    message = forms.CharField(label="Message", widget=forms.Textarea(attrs=MD_INPUT))
+    message = forms.CharField(
+        label="Message", widget=forms.Textarea(attrs=MD_INPUT))
 
     def clean_recipient(self):
         try:
-            recipient = Member.objects.get(equiv_user__username__iexact=self.cleaned_data['recipient'])
+            recipient = Member.objects.get(
+                equiv_user__username__iexact=self.cleaned_data['recipient'])
         except Member.DoesNotExist:
             raise ValidationError('Recipient with that username not found')
         return recipient
@@ -56,7 +59,8 @@ class MemberForm(forms.Form):
 
     def clean_recipient(self):
         try:
-            member = Member.objects.get(equiv_user__username__iexact=self.cleaned_data['recipient'])
+            member = Member.objects.get(
+                equiv_user__username__iexact=self.cleaned_data['recipient'])
         except Member.DoesNotExist:
             raise ValidationError('User with that username not found')
         return member

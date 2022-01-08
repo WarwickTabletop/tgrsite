@@ -43,7 +43,8 @@ class RpgForm(forms.ModelForm):
 class RpgCreateForm(RpgForm):
     class Meta:
         model = Rpg
-        fields = ['title', 'system', 'description', 'players_wanted', 'timeslot', 'location', 'finishes', 'published']
+        fields = ['title', 'system', 'description', 'players_wanted',
+                  'timeslot', 'location', 'finishes', 'published']
         widgets = {
             'description': Textarea(attrs=MD_INPUT),
         }

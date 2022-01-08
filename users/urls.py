@@ -18,7 +18,8 @@ urlpatterns = [
     path('signup/', views.Signup.as_view(), name='signup'),
 
     path('membership/verify/', views.VerifyRequest.as_view(), name='verifyrequest'),
-    path('membership/verify-confirm/', views.VerifyConfirm.as_view(), name='verifyconfirm'),
+    path('membership/verify-confirm/',
+         views.VerifyConfirm.as_view(), name='verifyconfirm'),
 
     path('change-password/',
          views.ChangePassword.as_view(),
@@ -42,7 +43,7 @@ urlpatterns = [
     path('user/me/achievements/',
          views.MyAchievements.as_view(),
          name='my_achievements'),
-     
+
     path('tutorial/', views.Tutorial.as_view(), name='tutorial'),
     path('tutorial-done/', views.TutorialDone.as_view(), name='tutorial_done'),
 
