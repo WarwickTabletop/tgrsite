@@ -17,7 +17,8 @@ class Newsletter(models.Model):
     pub_date = models.DateTimeField('Date Posted', auto_now_add=True)
     summary = models.CharField('Summary', max_length=256)
     ispublished = models.BooleanField('Is Published?')
-    banner = models.CharField(max_length=255, choices=BANNERS, default=BANNERS[-1][0])
+    banner = models.CharField(
+        max_length=255, choices=BANNERS, default=BANNERS[-1][0])
 
     def __str__(self):
         return self.title

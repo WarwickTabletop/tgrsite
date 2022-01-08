@@ -137,7 +137,8 @@ class Election:
 
         if surplus == 0 or surplus >= self.previous_surplus:
             # B3
-            sorted_results = sorted(filter(lambda x: x[0].status == States.HOPEFUL, scores.items()), key=itemgetter(1))
+            sorted_results = sorted(filter(
+                lambda x: x[0].status == States.HOPEFUL, scores.items()), key=itemgetter(1))
             min_score = sorted_results[0][1]
             eliminated_candidate: Candidate = self._choose(
                 list(filter(lambda x: x[1] <= min_score + surplus, sorted_results)))
@@ -147,7 +148,8 @@ class Election:
             # B2f
             for candidate in self.candidates:
                 if candidate.status == States.ELECTED:
-                    candidate.keep_factor = Fraction(candidate.keep_factor * quota, scores[candidate])
+                    candidate.keep_factor = Fraction(
+                        candidate.keep_factor * quota, scores[candidate])
         self.previous_surplus = surplus
         self._log(scores, wastage)
 
@@ -171,7 +173,8 @@ class Election:
         self._addlog("======")
         for i in self.candidates:
             assert isinstance(i, Candidate)
-            self._addlog("Candidate:", i.id, i.keep_factor.limit_denominator(1000))
+            self._addlog("Candidate:", i.id,
+                         i.keep_factor.limit_denominator(1000))
             self._addlog("Status:", str(i.status))
             self._addlog("Votes:", str(scores[i].limit_denominator(1000)))
             self._addlog()
@@ -212,7 +215,8 @@ def fptp_equivalent():
 
 def immediate_majority():
     c = {1, 2, 3, 4}
-    v = [(1, 2, 3, 4)] * 9 + [(2, 3, 1, 4)] * 4 + [(3, 1, 4, 2)] * 3 + [(4, 1)] * 2
+    v = [(1, 2, 3, 4)] * 9 + [(2, 3, 1, 4)] * \
+        4 + [(3, 1, 4, 2)] * 3 + [(4, 1)] * 2
     e = Election(c, v, 1)
     e.full_election()
 
@@ -226,7 +230,8 @@ def delayed_majority():
 
 def delayeder_majority():
     c = {1, 2, 3, 4}
-    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * 5 + [(2, 1, 4, 3)] + [(1, 4, 2, 3)]
+    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * \
+        5 + [(2, 1, 4, 3)] + [(1, 4, 2, 3)]
     e = Election(c, v, 1)
     e.full_election()
 
@@ -241,7 +246,8 @@ def two_available_three():
 
 def two_available_four():
     c = {1, 2, 3, 4}
-    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * 5 + [(2, 1, 4, 3)] * 3 + [(1, 4, 2, 3)] * 2
+    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * 5 + \
+        [(2, 1, 4, 3)] * 3 + [(1, 4, 2, 3)] * 2
     e = Election(c, v, 2)
     e.full_election()
 

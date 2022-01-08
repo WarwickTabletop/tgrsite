@@ -16,7 +16,8 @@ class Election(models.Model):
     vote_type = models.IntegerField(choices=Types.choices, default=Types.FPTP)
     max_votes = models.IntegerField(default=2,
                                     help_text="Ignored except in Plurality. Number of candidates selectable per vote")
-    seats = models.IntegerField(default=1, help_text="Ignored except in STV. Number of people who can win")
+    seats = models.IntegerField(
+        default=1, help_text="Ignored except in STV. Number of people who can win")
     open = models.BooleanField(default=False)
 
     def __str__(self):

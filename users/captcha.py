@@ -24,7 +24,8 @@ def sitename_captcha():
     sitename = "warwicktabletop"
     nums = ordered_different_randoms(list(range(7)))
     question = ["What are the ",
-                "{}, {} and {} ".format(ordinal(nums[0]), ordinal(nums[1]), ordinal(nums[2])),
+                "{}, {} and {} ".format(
+                    ordinal(nums[0]), ordinal(nums[1]), ordinal(nums[2])),
                 "letters of our ",
                 random.choice(["site name ", "domain name "]),
                 "(excluding the 'www.' at the start of it)?"

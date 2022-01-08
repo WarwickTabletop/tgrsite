@@ -52,7 +52,8 @@ class NotificationSubscriptions(models.Model):
     reduced_subscription_types = subscription_types[:3]
     member = models.OneToOneField(Member, on_delete=models.CASCADE)
 
-    newsletter = models.IntegerField(verbose_name='Newsletters', choices=subscription_types, default=SubType.WEB)
+    newsletter = models.IntegerField(
+        verbose_name='Newsletters', choices=subscription_types, default=SubType.WEB)
     message = models.IntegerField(verbose_name='Receive Direct Messages', choices=reduced_subscription_types,
                                   default=SubType.WEB)
     loan_request = models.IntegerField(verbose_name='A Loan Request Gets Updated', choices=reduced_subscription_types,
@@ -72,7 +73,8 @@ class NotificationSubscriptions(models.Model):
                                   default=SubType.NONE)
     achievement_got = models.IntegerField(verbose_name='You Get an Achievement', choices=reduced_subscription_types,
                                           default=SubType.WEB)
-    other = models.IntegerField(verbose_name='Miscellaneous', choices=reduced_subscription_types, default=SubType.NONE)
+    other = models.IntegerField(verbose_name='Miscellaneous',
+                                choices=reduced_subscription_types, default=SubType.NONE)
 
     def get_category_subscription(self, category):
         # Map setting value to its ID value
@@ -103,8 +105,10 @@ class NotificationSubscriptions(models.Model):
 class Notification(models.Model):
     notification_types = NotificationSubscriptions.notification_types
 
-    member = models.ForeignKey(Member, related_name='notifications_owned', on_delete=models.CASCADE)
-    notif_type = models.IntegerField(choices=notification_types, default=NotifType.OTHER)
+    member = models.ForeignKey(
+        Member, related_name='notifications_owned', on_delete=models.CASCADE)
+    notif_type = models.IntegerField(
+        choices=notification_types, default=NotifType.OTHER)
     url = models.CharField(max_length=512)
     content = models.TextField(max_length=8192)
     # A value used to group notifications. Usually a relevant primary key (forum thread key, rpg key, etc.):

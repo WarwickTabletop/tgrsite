@@ -34,7 +34,8 @@ class RecordForm(ModelForm):
 
     class Meta:
         model = Record
-        fields = ['name', 'description', 'quantity', 'image', 'acquired', 'owner']
+        fields = ['name', 'description', 'quantity',
+                  'image', 'acquired', 'owner']
         widgets = {
             'quantity': NumberInput(attrs=QUANTITY_attrs),
             'description': Textarea(attrs=MD_INPUT),
@@ -54,12 +55,15 @@ class LoanRequestForm(ModelForm):
             inv = kwargs['inv_']
             del kwargs['inv_']
         else:
-            raise NotImplementedError("Must define inv_ or incorrect results can be returned")
+            raise NotImplementedError(
+                "Must define inv_ or incorrect results can be returned")
 
         super().__init__(*args, **kwargs)
-        self.fields['items'].queryset = Record.objects.filter(inventory=inv, owner__isnull=True)
+        self.fields['items'].queryset = Record.objects.filter(
+            inventory=inv, owner__isnull=True)
         self.fields['start_date'].initial = datetime.date.today()
-        self.fields['end_date'].initial = datetime.date.today() + datetime.timedelta(days=7)
+        self.fields['end_date'].initial = datetime.date.today() + \
+            datetime.timedelta(days=7)
 
     class Meta:
         model = Loan
@@ -112,7 +116,8 @@ class LoanRequestForm(ModelForm):
             if not item.can_be_borrowed(cleaned_data['start_date'], cleaned_data['end_date'], exclude):
                 unavailable.append(item.name)
         if len(unavailable) > 0:
-            error = (", ".join(unavailable)) + " not available for loan between those dates"
+            error = (", ".join(unavailable)) + \
+                " not available for loan between those dates"
             self.add_error('items', error)
 
         return cleaned_data
@@ -124,12 +129,15 @@ class LoanSurrogateRequestForm(ModelForm):
             inv = kwargs['inv_']
             del kwargs['inv_']
         else:
-            raise NotImplementedError("Must define inv_ or incorrect results can be returned")
+            raise NotImplementedError(
+                "Must define inv_ or incorrect results can be returned")
 
         super().__init__(*args, **kwargs)
-        self.fields['items'].queryset = Record.objects.filter(inventory=inv, owner__isnull=True)
+        self.fields['items'].queryset = Record.objects.filter(
+            inventory=inv, owner__isnull=True)
         self.fields['start_date'].initial = datetime.date.today()
-        self.fields['end_date'].initial = datetime.date.today() + datetime.timedelta(days=7)
+        self.fields['end_date'].initial = datetime.date.today() + \
+            datetime.timedelta(days=7)
 
     class Meta:
         model = Loan
@@ -182,7 +190,8 @@ class LoanSurrogateRequestForm(ModelForm):
             if not item.can_be_borrowed(cleaned_data['start_date'], cleaned_data['end_date'], exclude):
                 unavailable.append(item.name)
         if len(unavailable) > 0:
-            error = (", ".join(unavailable)) + " not available for loan between those dates"
+            error = (", ".join(unavailable)) + \
+                " not available for loan between those dates"
             self.add_error('items', error)
 
         return cleaned_data

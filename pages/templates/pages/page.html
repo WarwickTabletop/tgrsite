@@ -8,6 +8,12 @@
 
 {% block pagetitle %}{{ page.page_title|safe }}{% endblock %}
 
+{% block breadcrumbs %}
+    {% if page.breadcrumb_child %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
 {% block breadcrumbs_parents %}
     {% for parent in page.breadcrumb_parents.all %}
         <li class="breadcrumb-item"><a href="{{ parent.url }}">{{ parent.name }}</a></li>
@@ -26,4 +32,5 @@
     {% if page.markdown %}{{ page.leftbar|parse_md_safe }}{% else %}{{ page.leftbar|safe }}{% endif %}
 {% endblock %}
 
-{% block body %}{{ block.super }}{% if page.markdown %}{{ page.body|parse_md_safe }}{% else %}{{ page.body|safe }}{% endif %}{% endblock %}
+{% block body %}{{ block.super }}{% if page.markdown %}{{ page.body|parse_md_safe }}{% else %}{{ page.body|safe }}
+{% endif %}{% endblock %}

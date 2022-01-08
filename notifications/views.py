@@ -20,11 +20,13 @@ class UpdateSubscriptions(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_url = reverse_lazy("homepage")
 
     def get_queryset(self):
-        data, new = NotificationSubscriptions.objects.get_or_create(member=self.request.user.member)
+        data, new = NotificationSubscriptions.objects.get_or_create(
+            member=self.request.user.member)
         return data
 
     def get_object(self, queryset=None):
-        data, new = NotificationSubscriptions.objects.get_or_create(member=self.request.user.member)
+        data, new = NotificationSubscriptions.objects.get_or_create(
+            member=self.request.user.member)
         return data
 
     def get_success_message(self, cleaned_data):
@@ -34,11 +36,13 @@ class UpdateSubscriptions(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 class QuickNewsletterSubscribe(LoginRequiredMixin, View):
     def post(self, request):
         member = request.user.member
-        notification_subs, new = NotificationSubscriptions.objects.get_or_create(member=member)
+        notification_subs, new = NotificationSubscriptions.objects.get_or_create(
+            member=member)
         notification_subs.newsletter = SubType.FULL
         notification_subs.full_clean()
         notification_subs.save()
-        add_message(request, messages.SUCCESS, "You have subscribed to the newsletter.")
+        add_message(request, messages.SUCCESS,
+                    "You have subscribed to the newsletter.")
         return HttpResponseRedirect(reverse("users:me"))
 
     def get(self, request):
@@ -65,7 +69,8 @@ class AllNotifications(LoginRequiredMixin, ListView):
 
 class ReadAll(LoginRequiredMixin, View):
     def post(self, request):
-        Notification.objects.filter(member=request.user.member).update(is_unread=False)
+        Notification.objects.filter(
+            member=request.user.member).update(is_unread=False)
         delete_old(request.user.member)
         return HttpResponseRedirect(reverse('notifications:all_notifications'))
 

@@ -19,16 +19,17 @@ def get_achievement_from_trigger(trigger: str):
 
 def notify_achievement(member: Member, name: str, request):
     achiev_name = f"You got an achievement: {name}!"
-    notify(member, NotifType.ACHIEVEMENTS, achiev_name, "/user/me/achievements/")
+    notify(member, NotifType.ACHIEVEMENTS,
+           achiev_name, "/user/me/achievements/")
     if request:
         add_message(request, messages.SUCCESS, achiev_name)
 
 
-def give_achievement(member: Member, trigger: str, date: datetime = None, request = None):
+def give_achievement(member: Member, trigger: str, date: datetime = None, request=None):
     if date is None:
         date = timezone.now()
     achiev = get_achievement_from_trigger(trigger)
-    award = AchievementAward.objects.update_or_create(
+    award = AchievementAward.objects.create(
         member=member,
         achievement=achiev,
         defaults={'achieved_at': date})
@@ -36,14 +37,14 @@ def give_achievement(member: Member, trigger: str, date: datetime = None, reques
     return award
 
 
-def give_achievement_once(member: Member, trigger: str, date: datetime = None, request = None):
+def give_achievement_once(member: Member, trigger: str, date: datetime = None, request=None):
     if date is None:
         date = timezone.now()
     achiev = get_achievement_from_trigger(trigger)
     return give_this_achievement_once(member, achiev, date, request)
 
 
-def give_this_achievement_once(member: Member, achiev: Achievement, date: datetime = None, request = None):
+def give_this_achievement_once(member: Member, achiev: Achievement, date: datetime = None, request=None):
     if date is None:
         date = timezone.now()
     award, created = AchievementAward.objects.get_or_create(
@@ -55,7 +56,8 @@ def give_this_achievement_once(member: Member, achiev: Achievement, date: dateti
     return award
 
 
-age_awards = {1: "one_year", 2: "two_years", 3: "three_years", 4: "four_years", 5: "five_years", 10: "resurrected"}
+age_awards = {1: "one_year", 2: "two_years", 3: "three_years",
+              4: "four_years", 5: "five_years", 10: "resurrected"}
 
 
 def age_achievements(member: Member):

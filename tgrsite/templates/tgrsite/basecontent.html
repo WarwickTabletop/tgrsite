@@ -1,5 +1,6 @@
 {% load static %}
 {% load markdown_tags %}
+{% load property_tags %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -58,15 +59,21 @@
         {% block navbar %}{% endblock %}
     </div>
 
+    {% block modal %}
+    {% endblock %}
 
     <div class="container-fluid">
 
         {% block mainbody %}
             <div class="row">
+                {% if wide %}
+                <div class="col-md-12 order-first order-0">
+                {% else %}
                 <div class="col-md-3 order-md-first order-2 d-none d-md-block pr-md-1">
                     {# Blank region. Any ideas? A clock maybe, or a death ray. Submissions welcome, but must be smaller than the box #}
                 </div>
                 <div class="col-md-9 order-first order-0">
+                {% endif %}
                     <h1>{% block pagetitle %}{% endblock %}</h1>
                     {% block breadcrumbs %}
                     {% endblock %}
@@ -75,11 +82,15 @@
                 </div>
             </div>
             <div class="row mb-3">
+                {% if wide %}
+                <div class="col-md-12 order-last">
+                {% else %}
                 <div class="col-md-3 mr-0 order-md-first order-2 pr-md-1 mb-md-3">
                     {% block leftcontents %}
                     {% endblock %}
                 </div>
                 <div class="col-md-9 order-last">
+                {% endif %}
                     {% block body %}
                         {# This is the part that gets overridden by templates that extend this one. #}
                     {% endblock %}

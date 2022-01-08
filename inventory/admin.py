@@ -10,7 +10,8 @@ class InventoryAdmin(admin.ModelAdmin):
 
 class LoanAdmin(admin.ModelAdmin):
     model = Loan
-    list_display = ("requester", "start_date", "end_date", "state_text", "inventory")
+    list_display = ("requester", "start_date",
+                    "end_date", "state_text", "inventory")
     list_filter = ("inventory",)
     fields = ("requester", "inventory", "items", "start_date", "end_date", "authorised", "rejected", "taken_when",
               "taken_who", "returned_when", "returned_who", "notes", "state_text")

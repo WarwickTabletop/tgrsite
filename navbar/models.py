@@ -27,7 +27,8 @@ class Nav(models.Model):
 
 
 class BarItem(Nav):
-    target = LocalableURLField(blank=True, help_text="The url this menu item should lead to.")
+    target = LocalableURLField(
+        blank=True, help_text="The url this menu item should lead to.")
 
 
 class BarDropdown(Nav):
@@ -35,5 +36,7 @@ class BarDropdown(Nav):
 
 
 class DropDownItem(Nav):
-    parent = models.ForeignKey(BarDropdown, on_delete=models.CASCADE, related_name="children")
-    target = LocalableURLField(blank=True, help_text="The url this menu item should lead to.")
+    parent = models.ForeignKey(
+        BarDropdown, on_delete=models.CASCADE, related_name="children")
+    target = LocalableURLField(
+        blank=True, help_text="The url this menu item should lead to.")

@@ -18,7 +18,8 @@ MD_INPUT_TEXT = {
 class ElectionForm(ModelForm):
     class Meta:
         model = Election
-        fields = ['name', 'description', 'vote_type', 'max_votes', 'seats', 'open']
+        fields = ['name', 'description', 'vote_type',
+                  'max_votes', 'seats', 'open']
         widgets = {'description': Textarea(attrs=MD_INPUT_SAFE)}
 
 
@@ -30,12 +31,14 @@ class CandidateForm(ModelForm):
 
 
 class IDTicketForm(Form):
-    ids = CharField(help_text="A list of whitespace separated uni-ids", widget=Textarea(), label="IDs")
+    ids = CharField(help_text="A list of whitespace separated uni-ids",
+                    widget=Textarea(), label="IDs")
     elections = ModelMultipleChoiceField(Election.objects.all())
 
 
 class UsernameTicketForm(Form):
-    ids = CharField(help_text="A list of whitespace separated usernames", widget=Textarea(), label="Usernames")
+    ids = CharField(help_text="A list of whitespace separated usernames",
+                    widget=Textarea(), label="Usernames")
     elections = ModelMultipleChoiceField(Election.objects.all())
 
 

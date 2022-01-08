@@ -42,7 +42,7 @@ function length(str) {
 }
 
 (function ($, window, document, undefined) {
-    $.fn.MarkdownEditor = function () {
+    $.fn.MarkdownEditor = function (isFull) {
 
         var adjustOffset = function (input, offset) {
                 let val = input.value, newOffset = offset;
@@ -87,8 +87,16 @@ function length(str) {
                     start: '*', end: '*', placeholder: 'Your emphasized text',
                     line: false, block: false
                 },
-                head: {
-                    start: '#', end: '', placeholder: 'Your header',
+                h1: {
+                    start: '#', end: '', placeholder: ' Your header',
+                    line: true, block: false
+                },
+                h2news: {
+                    start: '## ', end: ' {.news-bg}', placeholder: 'Your header',
+                    line: true, block: false
+                },
+                h3news: {
+                    start: '### ', end: ' {.news-bg}', placeholder: 'Your header',
                     line: true, block: false
                 },
                 quote: {
@@ -101,6 +109,14 @@ function length(str) {
                 },
                 image: {
                     start: '![', end: '](https://example.org/)', placeholder: 'Add image description',
+                    line: false, block: false 
+                },
+                imageleft: {
+                    start: '![', end: '](https://example.org/){.news-image-left}', placeholder: 'Add image description',
+                    line: false, block: false
+                },
+                imageright: {
+                    start: '![', end: '](https://example.org/){.news-image-right}', placeholder: 'Add image description',
                     line: false, block: false
                 },
                 code: {
@@ -119,45 +135,104 @@ function length(str) {
                     start: '1. ', end: '', placeholder: 'List Item',
                     line: true, block: true
                 },
+                break: {
+                    start: '', end: '\n{.clearfix}', placeholder: '',
+                    line: true, block: true
+                },
+                custom: {
+                    start: '', end: '{.custom-class-here}', placeholder: '',
+                    line: true, block: false
+                }
             };
 
         return this.each(function () {
             let txt = this,                          // textarea element
                 stale = true,
                 endpoint = $(this).data("endpoint") || "/api/md_preview/",
-                controls = $('<div class="controls" id="' + txt.id + '-controls" />'); // button container
-
+                controls = $('<div class="controls" id="' + txt.id + '-controls" />'), // button container
+                stalePreviewIcon = 'fa-eye-slash',
+                previewSource = controls;
+            
+            if (isFull) {
+                previewSource = $('.full-preview');
+                stalePreviewIcon = 'fa-check';
+            }
+            
             const format_classes = "btn btn-light";
             const button_template = '<button type="button" data-toggle="tooltip" data-placement="bottom" title="';
-            $(txt).before(controls.append(
-                '<div class="btn-toolbar" role="toolbar" aria-label="Markdown Toolbar">'
+            var md_toolbar = '<div class="btn-toolbar" role="toolbar" aria-label="Markdown Toolbar">'
                 + '<div class="btn-group mr-2 mb-1" role="group" aria-label="Formatting">'
                 + button_template + 'Bold" class="' + format_classes + ' c-bold"><i class="fas fa-bold"></i></button>'
                 + button_template + 'Italic" class="' + format_classes + ' c-italic"><i class="fas fa-italic"></i></button>'
                 + button_template + 'Strikethrough" class="' + format_classes + ' c-strike"><i class="fas fa-strikethrough"></i></button>'
                 + button_template + 'Code" class="' + format_classes + ' c-code"><i class="fas fa-code"></i></button>'
-                + button_template + 'Heading" class="' + format_classes + ' c-head"><i class="fas fa-heading"></i></button>'
-                + button_template + 'Quote" class="' + format_classes + ' c-quote"><i class="fas fa-quote-right"></i></button>'
+
+            if (!isFull) {
+                md_toolbar += button_template + 'Heading" class="' + format_classes + ' c-h1"><i class="fas fa-heading"></i></button>'
+            } else {
+                md_toolbar += button_template + 'Heading 2" class="' + format_classes + ' c-h2news"><i class="fas fa-heading"></i>2</button>'
+                    + button_template + 'Heading 3" class="' + format_classes + ' c-h3news"><i class="fas fa-heading"></i>3</button>'
+            }
+
+            md_toolbar += button_template + 'Quote" class="' + format_classes + ' c-quote"><i class="fas fa-quote-right"></i></button>'
 
                 + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Utilities">'
                 + button_template + 'Link" class="' + format_classes + ' c-link"><i class="fas fa-link"></i></button>'
                 + button_template + 'Image" class="' + format_classes + ' c-image"><i class="fas fa-image"></i></button>'
+            
+            if (isFull) {
+                md_toolbar += button_template + 'Image (Left, 50% Width)" class="' + format_classes
+                    + ' c-imageleft"><i class="fas fa-caret-left"></i>&nbsp;<i class="fas fa-image"></i></button>'
+                    + button_template + 'Image (Right, 50% Width)" class="' + format_classes
+                    + ' c-imageright"><i class="fas fa-image"></i>&nbsp;<i class="fas fa-caret-right"></i></button>'
+            }
 
-                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
+            md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Lists">'
                 + button_template + 'Bullet List" class="' + format_classes + ' c-ul"><i class="fas fa-list-ul"></i></button>'
                 + button_template + 'Ordered List" class="' + format_classes + ' c-ol"><i class="fas fa-list-ol"></i></button>'
 
-                + '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
+            if (isFull) {
+                md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
+                    + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
+                    + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
+                    + '<button type="button" data-placement="bottom" title="Help" class="' + format_classes
+                    + ' c-help" data-toggle="modal" data-target="#helpmodal"><i class="fas fa-question"></i></button>'
+            }
+
+            md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Preview">'
                 + button_template + 'Preview" class="' + format_classes + ' c-preview"><i class="fas fa-eye"></i></button>'
                 + '</div>'
                 + '</div>'
-                + '<div class="preview"></div>'
-            ));
-            controls.find('.preview').slideUp();
+ 
+            if (!isFull) md_toolbar += '<div class="preview"></div>'
+
+            let doPreview = function() {
+                if (stale) {
+                    stale = false;
+                    controls.find('.fa-eye').removeClass('fa-eye').addClass(stalePreviewIcon);
+                    createPreview(txt, previewSource, endpoint);
+                } else {
+                    if (!isFull) {
+                        previewSource.find('.preview').slideUp();
+                        controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                        stale = true;
+                    }
+                }
+                return true;
+            };
+            let timeout;
+            if (isFull) timeout = setTimeout(doPreview, 1);
+
+            $(txt).before(controls.append(md_toolbar));
+            if (!isFull) controls.find('.preview').slideUp();
             $(txt).on('keydown', function (event) {
-                controls.find('.card').addClass("text-muted");
-                controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
+                previewSource.find('.card').addClass("text-muted");
+                controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
                 stale = true;
+                if (isFull) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(doPreview, 600);
+                }
                 return MarkdownHelper(txt, event);
             });
 
@@ -170,15 +245,8 @@ function length(str) {
                 let tag = tags[tagName]
 
                 if (tagName === "preview") {
-                    if (stale) {
-                        stale = false;
-                        controls.find('.fa-eye').removeClass('fa-eye').addClass('fa-eye-slash');
-                        createPreview(txt, controls, endpoint);
-                    } else {
-                        controls.find('.preview').slideUp();
-                        controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
-                        stale = true;
-                    }
+                    return doPreview();
+                } else if (tagName === "help") {
                     return true;
                 }
                 let a = toLines(txt.value, range);
@@ -218,6 +286,7 @@ function length(str) {
                 if (tag.block && (selection.start.line - 1) >= 0 && lines[selection.start.line - 1] !== "") {
                     lines[selection.start.line] = "\n" + lines[selection.start.line];
                     start_delta += 1;
+                    end_delta += 1;
                 }
                 if (tag.block && (selection.end.line + 1) <= lines.length && lines[selection.end.line + 1] !== "") {
                     lines[selection.end.line] = lines[selection.end.line] + "\n";
@@ -226,8 +295,12 @@ function length(str) {
                 setCaretToPos(txt, range.start + start_delta, range.end + end_delta);
 
                 stale=true;
-                controls.find('.card').addClass("text-muted");
-                controls.find('.fa-eye-slash').removeClass('fa-eye-slash').addClass('fa-eye');
+                previewSource.find('.card').addClass("text-muted");
+                controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
+                if (isFull) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(doPreview, 600);
+                }
 
                 return true;
             });
@@ -297,17 +370,5 @@ function MarkdownHelper(block, event) {
 }
 
 function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+    return Cookies.get(name);
 }

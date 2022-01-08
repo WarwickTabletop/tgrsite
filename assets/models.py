@@ -5,7 +5,8 @@ from django.dispatch import receiver
 
 # Create your models here.
 class Asset(models.Model):
-    name = models.CharField(max_length=25, help_text="Enter a name to help recognise it.")
+    name = models.CharField(
+        max_length=25, help_text="Enter a name to help recognise it.")
     assetFile = models.FileField(upload_to='assets/%Y/%m/%d/')
 
     def __str__(self):
@@ -14,9 +15,12 @@ class Asset(models.Model):
 
 # Create your models here.
 class VisualAsset(models.Model):
-    name = models.CharField(max_length=25, help_text="Enter a name to help recognise it.")
-    lightAssetFile = models.FileField(upload_to='assets/themed/light/%Y/%m/%d/')
-    darkAssetFile = models.FileField(upload_to='assets/themed/dark/%Y/%m/%d/', blank=True)
+    name = models.CharField(
+        max_length=25, help_text="Enter a name to help recognise it.")
+    lightAssetFile = models.FileField(
+        upload_to='assets/themed/light/%Y/%m/%d/')
+    darkAssetFile = models.FileField(
+        upload_to='assets/themed/dark/%Y/%m/%d/', blank=True)
 
     def __str__(self):
         return self.name + ': ' + self.lightAssetFile.url

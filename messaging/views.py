@@ -50,11 +50,12 @@ def find_dm(*members):
         return m_thread
 
 
-def send_message(member, thread, message, request = None):
+def send_message(member, thread, message, request=None):
     # Send the notification to everyone in the thread except the sender.
     url = reverse('message:message_thread', args=[thread.id])
     for receiver in thread.participants.all():
-        message_txt = 'You got a message from ' + str(member.equiv_user.username)
+        message_txt = 'You got a message from ' + \
+            str(member.equiv_user.username)
         if thread.title:
             message_txt += ' in chat "' + str(thread.title) + '"'
         message_txt += ': ' + visible(message)
@@ -138,7 +139,8 @@ class ReportView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request):
         message = self.get_object()
         comment = self.request.POST.get('comment', default="")
-        MessageReport.objects.create(member=self.request.user.member, message=message, comment=comment)
+        MessageReport.objects.create(
+            member=self.request.user.member, message=message, comment=comment)
         django_add_message(request, django_message.SUCCESS,
                            "A report has been sent. An admin should review this message soon")
         notify_bulk(Member.users_with_perm(PERMS.messaging.can_moderate),
@@ -199,7 +201,8 @@ class Index(LoginRequiredMixin, FormView):
         t = find_dm(target, self.request.user.member)
         if t is None:
             raise ValueError
-        m = send_message(self.request.user.member, t, form.cleaned_data['message'], self.request)
+        m = send_message(self.request.user.member, t,
+                         form.cleaned_data['message'], self.request)
         self.object = m
         return super().form_valid(form)
 
@@ -228,7 +231,8 @@ class Thread(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get_context_data(self, **kwargs):
         count = 10
         ctxt = super().get_context_data(**kwargs)
-        ctxt['thread'] = thread = get_object_or_404(MessageThread, id=self.kwargs['pk'])
+        ctxt['thread'] = thread = get_object_or_404(
+            MessageThread, id=self.kwargs['pk'])
         messages = thread.message_set.filter(deleted__isnull=True)
         ctxt['thread_messages'] = messages.order_by('-timestamp')[:count]
         ctxt['more'] = (messages.count() > count)
@@ -239,7 +243,8 @@ class Thread(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def form_valid(self, form):
         t = MessageThread.objects.get(pk=self.kwargs['pk'])
-        m = send_message(self.request.user.member, t, form.cleaned_data['message'], self.request)
+        m = send_message(self.request.user.member, t,
+                         form.cleaned_data['message'], self.request)
         self.object = m
         return super().form_valid(form)
 
@@ -273,15 +278,17 @@ class FullThread(LoginRequiredMixin, UserPassesTestMixin, ListView):
     context_object_name = "thread_messages"
 
     def test_func(self):
-        self.thread = thread = get_object_or_404(MessageThread, id=self.kwargs['thread'])
+        self.thread = thread = get_object_or_404(
+            MessageThread, id=self.kwargs['thread'])
         # make sure the user is in the thread
         return self.request.user.member in thread.participants.all() or (
-                self.request.user.has_perm(PERMS.messaging.can_moderate) and thread.message_set.filter(
-            messagereport__resolved=False).exists())
+            self.request.user.has_perm(PERMS.messaging.can_moderate) and thread.message_set.filter(
+                messagereport__resolved=False).exists())
 
     def get_context_data(self, object_list=None, **kwargs):
         ctxt = super().get_context_data(object_list=object_list, **kwargs)
-        ctxt['thread'] = get_object_or_404(MessageThread, id=self.kwargs['thread'])
+        ctxt['thread'] = get_object_or_404(
+            MessageThread, id=self.kwargs['thread'])
         if self.request.user.member not in ctxt['thread'].participants.all():
             ctxt['moderating'] = True
         return ctxt

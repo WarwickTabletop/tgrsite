@@ -24,10 +24,12 @@ from .templatetags.rpg_tags import can_manage, can_access
 from users.models import Member
 from users.achievements import give_achievement_once
 
+
 def member_or_none(req):
     if not req.user.is_anonymous:
         return req.user.member
     return None
+
 
 class Index(generic.ListView):
     template_name = 'rpgs/index.html'
@@ -36,18 +38,22 @@ class Index(generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        Rpg.objects.filter(is_in_the_past=False, finishes__lt=timezone.now()).update(is_in_the_past=True)
+        Rpg.objects.filter(is_in_the_past=False, finishes__lt=timezone.now()).update(
+            is_in_the_past=True)
         member = member_or_none(self.request)
         queryset = Rpg.objects.visible(member)
         if self.request.GET.get('tag', False):
-            queryset = queryset.filter(tags__name__iexact=self.request.GET['tag'])
+            queryset = queryset.filter(
+                tags__name__iexact=self.request.GET['tag'])
         if self.request.GET.get('user', False):
             try:
-                user = Member.objects.get(equiv_user__username__iexact=self.request.GET.get('user'))
+                user = Member.objects.get(
+                    equiv_user__username__iexact=self.request.GET.get('user'))
             except Member.DoesNotExist:
                 pass
             else:
-                queryset = queryset.filter(Q(members=user) | Q(creator=user) | Q(game_masters=user)).distinct()
+                queryset = queryset.filter(Q(members=user) | Q(
+                    creator=user) | Q(game_masters=user)).distinct()
         if not self.request.GET.get('showfinished', False):
             queryset = queryset.filter(is_in_the_past=False)
         queryset = queryset.annotate(full=Case(When(players_wanted__lte=Count('members'), then=1), default=0,
@@ -75,9 +81,9 @@ class Detail(UserPassesTestMixin, generic.DetailView):
 def notify_rpg(object):
     url = reverse('rpgs:detail', kwargs={'pk': object.id})
     notify_everybody(NotifType.RPG_CREATE, f"A new event '{object.title}' is available for signup.",
-                        url, merge_key=object.id)
+                     url, merge_key=object.id)
     discord_message = (f"A new event **{object.title}** is now available for signup!\n"
-                        f"**Available slots**: {object.players_wanted}")
+                       f"**Available slots**: {object.players_wanted}")
     if object.system:
         discord_message += f"\n**System**: {object.system}"
     if object.timeslot:
@@ -90,6 +96,7 @@ def notify_rpg(object):
     notify_discord(discord_message, object.creator)
     object.published = True
     object.save()
+
 
 class Create(LoginRequiredMixin, generic.CreateView):
     template_name = 'rpgs/create.html'
@@ -104,10 +111,13 @@ class Create(LoginRequiredMixin, generic.CreateView):
             self.object.tags.add(tag)
         self.object.game_masters.add(self.request.user.member)
         self.object.save()
-        add_message(self.request, messages.SUCCESS, "Event successfully created")
-        give_achievement_once(self.request.user.member, "first_event", request=self.request)
+        add_message(self.request, messages.SUCCESS,
+                    "Event successfully created")
+        give_achievement_once(self.request.user.member,
+                              "first_event", request=self.request)
         if Rpg.objects.filter(creator=self.request.user.member).count() >= 5:
-            give_achievement_once(self.request.user.member, "five_events", request=self.request)
+            give_achievement_once(self.request.user.member,
+                                  "five_events", request=self.request)
         if self.object.published:
             notify_rpg(self.object)
         return response
@@ -154,7 +164,7 @@ class Publish(LoginRequiredMixin, UserPassesTestMixin, generic.View):
     def __init__(self, **kwargs):
         self.rpg = None
         super().__init__(**kwargs)
-    
+
     def test_func(self):
         self.rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
         return can_manage(self.request.user.member, self.rpg) and not self.rpg.published
@@ -183,16 +193,19 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
         grammarset = namedtuple('grammarset', 'this that the This That The')
         if base:
             descriptor = "event"
-            grammar = grammarset('this','that','the','This','That','The')
+            grammar = grammarset('this', 'that', 'the', 'This', 'That', 'The')
         else:
             descriptor = f"parent event ({rpg.title})"
-            grammar = grammarset('a','a','a','A','A','A')
+            grammar = grammarset('a', 'a', 'a', 'A', 'A', 'A')
         if member in rpg.members.all() and base:
-            add_message(self.request, messages.WARNING, f"You are already in {grammar.this} {descriptor}!")
+            add_message(self.request, messages.WARNING,
+                        f"You are already in {grammar.this} {descriptor}!")
         elif member in rpg.game_masters.all() and base:
-            add_message(self.request, messages.WARNING, f"You are running {grammar.that} {descriptor}!")
+            add_message(self.request, messages.WARNING,
+                        f"You are running {grammar.that} {descriptor}!")
         elif rpg.members.count() >= rpg.players_wanted:
-            add_message(self.request, messages.WARNING, f"Sorry, {grammar.this} {descriptor} is already full")
+            add_message(self.request, messages.WARNING,
+                        f"Sorry, {grammar.this} {descriptor} is already full")
         elif not member.is_soc_member and rpg.member_only:
             add_message(self.request, messages.WARNING, f"{grammar.This} {descriptor} is only available to current members. "
                                                         "Please verify your membership from your profile and try again.")
@@ -209,12 +222,15 @@ class Join(LoginRequiredMixin, UserPassesTestMixin, generic.View):
                     return False
             rpg.members.add(self.request.user.member)
             notify(rpg.creator, NotifType.RPG_JOIN,
-                   'User {} joined your game "{}"!'.format(self.request.user.username, rpg.title),
+                   'User {} joined your game "{}"!'.format(
+                       self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
             if base and rpg.success_message:
-                add_message(self.request, messages.SUCCESS, mark_safe(parse_md_text(rpg.success_message)), extra_tags="alert-bootstrapable")
+                add_message(self.request, messages.SUCCESS, mark_safe(
+                    parse_md_text(rpg.success_message)), extra_tags="alert-bootstrapable")
             else:
-                add_message(self.request, messages.SUCCESS, f"You have successfully joined {grammar.this} {descriptor}")
+                add_message(self.request, messages.SUCCESS,
+                            f"You have successfully joined {grammar.this} {descriptor}")
             return True
         return False
 
@@ -227,7 +243,8 @@ class Leave(LoginRequiredMixin, generic.View):
         rpg = get_object_or_404(Rpg, pk=self.kwargs['pk'])
 
         if self.request.user.member not in rpg.members.all():
-            add_message(self.request, messages.WARNING, "You are not currently in that event!")
+            add_message(self.request, messages.WARNING,
+                        "You are not currently in that event!")
         child = rpg.children.filter(members=self.request.user.member).first()
         if child:
             add_message(self.request, messages.WARNING, f"You are signed up to the child event {child.title}! "
@@ -235,9 +252,11 @@ class Leave(LoginRequiredMixin, generic.View):
         else:
             rpg.members.remove(self.request.user.member)
             notify(rpg.creator, NotifType.RPG_JOIN,
-                   'User {} left your game "{}"!'.format(self.request.user.username, rpg.title),
+                   'User {} left your game "{}"!'.format(
+                       self.request.user.username, rpg.title),
                    reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-            add_message(self.request, messages.SUCCESS, f"You have successfully left the event {rpg.title}.")
+            add_message(self.request, messages.SUCCESS,
+                        f"You have successfully left the event {rpg.title}.")
         if rpg.published:
             return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
         return HttpResponseRedirect(reverse('rpgs:index'))
@@ -253,12 +272,14 @@ class Kick(LoginRequiredMixin, UserPassesTestMixin, generic.View):
         return can_manage(self.request.user.member, self.rpg)
 
     def post(self, *args, **kwargs):
-        kicked = User.objects.get(member__id=self.request.POST.get('user-to-remove')).member
+        kicked = User.objects.get(
+            member__id=self.request.POST.get('user-to-remove')).member
         self.rpg.members.remove(kicked)
         notify(kicked, NotifType.RPG_KICK,
                'You were kicked from the game "{}".'.format(self.rpg.title),
                reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-        add_message(self.request, messages.SUCCESS, "{} Removed from Event".format(kicked.equiv_user.username))
+        add_message(self.request, messages.SUCCESS,
+                    "{} Removed from Event".format(kicked.equiv_user.username))
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 
@@ -273,7 +294,8 @@ class AddMember(LoginRequiredMixin, UserPassesTestMixin, generic.View):
 
     def post(self, *args, **kwargs):
         try:
-            added = User.objects.get(username__iexact=self.request.POST.get('username')).member
+            added = User.objects.get(
+                username__iexact=self.request.POST.get('username')).member
         except User.DoesNotExist:
             add_message(self.request, messages.WARNING, "Username not found")
         else:
@@ -282,9 +304,11 @@ class AddMember(LoginRequiredMixin, UserPassesTestMixin, generic.View):
             else:
                 self.rpg.members.add(added)
                 notify(added, NotifType.RPG_KICK,
-                       'You were added to the game "{}".'.format(self.rpg.title),
+                       'You were added to the game "{}".'.format(
+                           self.rpg.title),
                        reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
-                add_message(self.request, messages.SUCCESS, "{} Added to Event".format(added.equiv_user.username))
+                add_message(self.request, messages.SUCCESS,
+                            "{} Added to Event".format(added.equiv_user.username))
         return HttpResponseRedirect(reverse('rpgs:detail', kwargs={'pk': self.kwargs['pk']}))
 
 

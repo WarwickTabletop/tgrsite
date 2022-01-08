@@ -20,7 +20,8 @@ class Week(models.Model):
     startDate = models.CharField(max_length=10)
     number = models.SmallIntegerField()
     year = models.PositiveSmallIntegerField(default=date.today().year,
-                                            validators=[validators.MinValueValidator(2000, message="Invalid year")],
+                                            validators=[validators.MinValueValidator(
+                                                2000, message="Invalid year")],
                                             help_text="Academic year (use greater year, i.e. 18/19 is 2019)")
 
     def __str__(self):
@@ -55,8 +56,10 @@ class Booking(models.Model):
 
 
 class ColourScheme(models.Model):
-    name = models.CharField(max_length=20, help_text="A description to help you identify it")
-    html_code = models.CharField(max_length=7, help_text="Enter hexcode of colour to be used (include #)")
+    name = models.CharField(
+        max_length=20, help_text="A description to help you identify it")
+    html_code = models.CharField(
+        max_length=7, help_text="Enter hexcode of colour to be used (include #)")
     light_text = models.BooleanField(default=False,
                                      help_text="Should the text used be a light colour (for dark colours)")
 
@@ -70,7 +73,8 @@ class Timetable(models.Model):
     weeks = models.ManyToManyField(Week)
     notes = models.TextField(blank=True)
     active = models.BooleanField(default=False)
-    colour = models.ForeignKey(ColourScheme, on_delete=models.SET_NULL, null=True)
+    colour = models.ForeignKey(
+        ColourScheme, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return str(self.title)
@@ -93,8 +97,10 @@ class SpecialEvent(models.Model):
     url = models.URLField(blank=True, max_length=200)
     room = models.CharField(blank=True, max_length=30)
     week = models.SmallIntegerField()
-    display_date = models.CharField(max_length=60, help_text="The description of date and time to display")
-    sort_date = models.DateField(help_text="The date to sort by, usually start date")
+    display_date = models.CharField(
+        max_length=60, help_text="The description of date and time to display")
+    sort_date = models.DateField(
+        help_text="The date to sort by, usually start date")
     hide_date = models.DateField(help_text="The date to hide this event after")
     poster = models.ImageField(blank=True, upload_to='posters/%Y/%m/%d/')
 

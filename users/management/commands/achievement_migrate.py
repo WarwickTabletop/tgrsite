@@ -18,10 +18,12 @@ class Command(BaseCommand):
             age_achievements(m)
             first_thread = m.thread_set.order_by("pub_date").first()
             if first_thread:
-                give_achievement_once(m, "created_thread", first_thread.pub_date)
+                give_achievement_once(
+                    m, "created_thread", first_thread.pub_date)
             first_response = m.response_set.order_by("pub_date").first()
             if first_response:
-                give_achievement_once(m, "replied_forum", first_response.pub_date)
+                give_achievement_once(m, "replied_forum",
+                                      first_response.pub_date)
             first_message = m.message_set.order_by("timestamp").first()
             if first_message:
                 give_achievement_once(m, "messaged", first_message.timestamp)
@@ -34,6 +36,7 @@ class Command(BaseCommand):
             if m.is_soc_member and m.membership.active:
                 if not (m.achievementaward_set.filter(achievement__trigger_name="verify_membership")
                         .filter(achieved_at__gte=m.membership.checked-timedelta(days=7)).exists()):
-                    give_achievement(m, "verify_membership", m.membership.checked)
+                    give_achievement(m, "verify_membership",
+                                     m.membership.checked)
 
         self.stdout.write('Achievements Migrated')

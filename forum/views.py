@@ -49,14 +49,16 @@ class ViewSubforum(AccessMixin, SuccessMessageMixin, CreateView):
         if not request.user.is_authenticated:
             self.handle_no_permission()
         else:
-            give_achievement_once(request.user.member, "created_thread", request=request)
+            give_achievement_once(request.user.member,
+                                  "created_thread", request=request)
             return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         current_forum = get_object_or_404(Forum, id=self.kwargs['forum'])
         # put pinned/stickied threads first
-        threads = Thread.objects.filter(forum_id=self.kwargs['forum']).extra(order_by=['-is_pinned', '-pub_date'])
+        threads = Thread.objects.filter(forum_id=self.kwargs['forum']).extra(
+            order_by=['-is_pinned', '-pub_date'])
         context.update({
             'current': current_forum,
             'forums': current_forum.get_subforums().order_by('sort_index'),
@@ -76,7 +78,8 @@ class ViewSubforum(AccessMixin, SuccessMessageMixin, CreateView):
         form.instance.pub_date = timezone.now()
         form.instance.forum = Forum.objects.get(id=self.kwargs['forum'])
         response = super().form_valid(form)
-        Thread.objects.get(id=form.instance.id).subscribed.add(self.request.user.member)
+        Thread.objects.get(id=form.instance.id).subscribed.add(
+            self.request.user.member)
         return response
 
 
@@ -93,10 +96,12 @@ class ViewThread(AccessMixin, SuccessMessageMixin, CreateView):
         else:
             thread = get_object_or_404(Thread, id=self.kwargs['thread'])
             if thread.is_locked and not request.user.has_perm('forum.add_response'):
-                add_message(request, constants.ERROR, "Sorry, this thread is locked. No responses can be created")
+                add_message(request, constants.ERROR,
+                            "Sorry, this thread is locked. No responses can be created")
                 self.handle_no_permission()
             else:
-                give_achievement_once(request.user.member, "replied_forum", request=request)
+                give_achievement_once(
+                    request.user.member, "replied_forum", request=request)
                 return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -126,7 +131,8 @@ class ViewThread(AccessMixin, SuccessMessageMixin, CreateView):
         for author in thread.subscribed.all():
             if author != self.request.user.member:
                 notify(author, NotifType.FORUM_REPLY,
-                       '{} replied to a thread you\'ve subscribed to!'.format(self.request.user.username), url,
+                       '{} replied to a thread you\'ve subscribed to!'.format(
+                           self.request.user.username), url,
                        thread.id)
         if self.request.user.member not in thread.subscribed.all():
             thread.subscribed.add(self.request.user.member)
@@ -191,7 +197,8 @@ class EditResponse(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin,
 
 class EditThread(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, UpdateView):
     model = Thread
-    form_class = ThreadForm  # I'm uncomfortable with letting people move threads around willy-nilly. Will review
+    # I'm uncomfortable with letting people move threads around willy-nilly. Will review
+    form_class = ThreadForm
     template_name = "forum/edit_thread.html"
     success_message = "Thread changed"
 

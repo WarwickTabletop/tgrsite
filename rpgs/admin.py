@@ -9,7 +9,8 @@ class RpgAdmin(admin.ModelAdmin):
         (None, {
             'fields': ['title', 'system', 'description', 'timeslot', 'location', 'players_wanted', 'finishes',
                        'is_in_the_past', 'tags']}),
-        ("Users", {'fields': ['creator', 'game_masters', 'members', 'messaging_thread']}),
+        ("Users", {'fields': ['creator', 'game_masters',
+         'members', 'messaging_thread']}),
         ("Admin", {'fields': ['pinned', 'unlisted', 'discord', 'member_only', 'published', 'parent',
                               'child_signup_only', 'success_message']}),
     )

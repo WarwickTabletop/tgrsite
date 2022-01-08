@@ -24,9 +24,11 @@ def doSummaryNotificationMailings():
     users = Member.objects.all()
     user_notifications = {u.id: [] for u in users}
 
-    notifications = Notification.objects.filter(is_emailed=False, is_unread=True).order_by('-time')
+    notifications = Notification.objects.filter(
+        is_emailed=False, is_unread=True).order_by('-time')
     for notification in notifications:
-        sub, new = NotificationSubscriptions.objects.get_or_create(member=notification.member)
+        sub, new = NotificationSubscriptions.objects.get_or_create(
+            member=notification.member)
         if sub.get_category_subscription(notification.notif_type) == SubType.SUMMARY:
             user_notifications[notification.member_id].append(notification)
 
@@ -60,7 +62,8 @@ def doSummaryNotificationMailings():
 def doNewsletterMailings(pk):
     request = HttpRequest()
     request.META['HTTP_HOST'] = settings.PRIMARY_HOST
-    subs = NotificationSubscriptions.objects.filter(newsletter__exact=SubType.FULL)
+    subs = NotificationSubscriptions.objects.filter(
+        newsletter__exact=SubType.FULL)
     newsletter = Newsletter.objects.get(pk=pk)
     subject = newsletter.title + " | Warwick Tabletop Games and Roleplaying Society"
     text = loader.render_to_string("newsletters/plain-email-version.txt", {"object": newsletter},
@@ -68,7 +71,8 @@ def doNewsletterMailings(pk):
     html = loader.render_to_string("newsletters/email-version.html", {"object": newsletter, "unsub": True},
                                    request)
     html = transformer.transform(html)
-    mails = [(subject, text, html, None, [sub.member.equiv_user.email]) for sub in subs]
+    mails = [(subject, text, html, None, [sub.member.equiv_user.email])
+             for sub in subs]
     send_mass_html_mail(mails, fail_silently=False)
 
 

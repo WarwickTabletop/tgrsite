@@ -19,7 +19,8 @@ class ViewPage(UserPassesTestMixin, generic.DetailView):
             return False
         o = self.get_object()
         if o.achievement and self.request.user.is_authenticated:
-            give_this_achievement_once(self.request.user.member, o.achievement, request=self.request)
+            give_this_achievement_once(
+                self.request.user.member, o.achievement, request=self.request)
         return True
 
     def test_page_perms(self):
@@ -43,5 +44,6 @@ class ViewPage(UserPassesTestMixin, generic.DetailView):
             else:
                 raise NotImplemented("Invalid Page Permission Value")
         else:
-            add_message(self.request, WARNING, "Please log in to see that page")
+            add_message(self.request, WARNING,
+                        "Please log in to see that page")
             return False
