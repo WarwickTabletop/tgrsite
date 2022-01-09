@@ -1,7 +1,7 @@
 # tgrsite
 This is the repo for the Warwick Tabletop Games and Roleplaying Society website! You can find a live copy of it [here](https://www.warwicktabletop.co.uk/).
 
-There is also a [document explaining the running of the website](https://www.warwicktabletop.co.uk/media/assets/2022/01/02/How_To_Website_Really_Good.pdf), which you can use to find out how the website is used in practice and what areas for improvement it currently has.
+There is also a document explaining the running of the website, [*How To Website Really Good*](https://www.warwicktabletop.co.uk/website-good), which you can use to find out how the website is used in practice and what areas for improvement it currently has.
 
 ## How do I run a development copy of the website?
 To run a local copy of the website for development, you'll need to install various bits, add the required configuration variables, and then create some bits required by Django. We'll go through each of those now.
