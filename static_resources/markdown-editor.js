@@ -195,7 +195,7 @@ function length(str) {
                 md_toolbar += '</div><div class="btn-group mr-2 mb-1" role="group" aria-label="Classes">'
                     + button_template + 'Section Break" class="' + format_classes + ' c-break"><i class="fas fa-level-down-alt"></i></button>'
                     + button_template + 'Custom Class" class="' + format_classes + ' c-custom"><i class="fas fa-hammer"></i></button>'
-                    + '<button type="button" data-placement="bottom" title="Help" class="' + format_classes
+                    + '<button type="button" data-placement="bottom" data-tooltip="tooltip" title="Help" class="' + format_classes
                     + ' c-help" data-toggle="modal" data-target="#helpmodal"><i class="fas fa-question"></i></button>'
             }
 
@@ -225,6 +225,7 @@ function length(str) {
 
             $(txt).before(controls.append(md_toolbar));
             if (!isFull) controls.find('.preview').slideUp();
+            $('[data-tooltip="tooltip"]').tooltip();
             $(txt).on('keydown', function (event) {
                 previewSource.find('.card').addClass("text-muted");
                 controls.find('.'+stalePreviewIcon).removeClass(stalePreviewIcon).addClass('fa-eye');
