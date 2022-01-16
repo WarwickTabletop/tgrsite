@@ -98,7 +98,7 @@ class Thread(models.Model):
     # or need to be moved -before- the forum is deleted
     forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
 
-    title = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
     body = models.TextField(max_length=body_size)
     pub_date = models.DateTimeField('date posted')
 
