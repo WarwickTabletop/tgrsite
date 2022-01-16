@@ -64,9 +64,21 @@
         </div>
     </div>
     <div class="col-md-6">
+        <label class="requiredField">Preview</label>
         <div class="container-fluid full-preview">
             <div class="preview"></div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block bottomscripts %}
+    {{ block.super }}
+
+    <style type="text/css">
+        .markdown-text {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
 {% endblock %}
