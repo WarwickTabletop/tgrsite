@@ -55,7 +55,7 @@ class Meeting(models.Model):
                             help_text="This is the name that appears in the URL - Week_n is a sensible example. Letters, numbers or underscores only",
                             validators=[RegexValidator("^[a-zA-Z0-9][a-zA-Z0-9-_]*$",
                                                        "This may only contain letters, numbers or underscores")])
-    title = models.CharField(max_length=80)
+    title = models.CharField(max_length=128)
     folder = models.ForeignKey(
         Folder, on_delete=models.SET_NULL, null=True, related_name="meetings")
     body = models.TextField()
