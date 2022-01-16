@@ -145,7 +145,8 @@ THIS IS USED BY THE SITE
             console.log("Getting ready.");
             $(".markdown-input-news").MarkdownEditor(true);
             $(".markdown-input").MarkdownEditor(false);
-            $('[data-toggle="tooltip"]').tooltip()
+            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-target="#helpmodal"]').tooltip();
         });
 
         function setCookieForeverish(cname, cvalue) {
