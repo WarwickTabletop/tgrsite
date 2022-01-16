@@ -93,5 +93,10 @@ a.anchor {
   }
 }
 
+.preview .markdown-text {
+  max-height:600px;
+  overflow-y:auto;
+}
+
 @import "tgrsite_newsletter";
 
