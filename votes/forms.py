@@ -53,5 +53,6 @@ class MemberTicketForm(Form):
 
 class DateTicketForm(Form):
     date = DateField(widget=SelectDateWidget(),
-                     help_text="Select the date before which their membership should have been verified")
+                     help_text="Select the date before which their membership should have been verified." + \
+                         "Note that this will only select those who are currently members of the society.")
     elections = ModelMultipleChoiceField(Election.objects.all())
