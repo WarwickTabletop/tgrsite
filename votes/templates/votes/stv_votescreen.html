@@ -64,7 +64,7 @@
                 <div id="sortable_reject" class="card-body">
                     {% for choice in choices %}
                         <div class="card mb-3" data-voteid="{{ choice.formid }}">
-                            <label class="mb-0 card-header" for="{{ choice.formid }}" class="">
+                            <label class="mb-0 card-header" for="{{ choice.formid }}">
                                 <strong>{{ choice.name }}</strong>
                             </label>
                             {% if choice.description|parse_md_text %}
