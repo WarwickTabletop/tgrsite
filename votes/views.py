@@ -70,7 +70,7 @@ class DateTicketView(PermissionRequiredMixin, FormView):
     success_url = reverse_lazy('votes:admin')
 
     def form_valid(self, form):
-        for membership in Membership.objects.filter(checked__lte=form.cleaned_data['date']):
+        for membership in Membership.objects.filter(checked__lte=form.cleaned_data['date'], active=True):
             for election in form.cleaned_data['elections']:
                 Ticket.objects.get_or_create(
                     member_id=membership.member_id, election=election)
