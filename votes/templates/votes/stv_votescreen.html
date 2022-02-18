@@ -65,7 +65,7 @@
                     {% for choice in choices %}
                         <div class="card mb-3" data-voteid="{{ choice.formid }}">
                             <label class="mb-0 card-header" for="{{ choice.formid }}" class="">
-                                {{ choice.name }}
+                                <strong>{{ choice.name }}</strong>
                             </label>
                             {% if choice.description|parse_md_text %}
                                 <div class="card-body markdown-text">
