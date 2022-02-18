@@ -32,7 +32,7 @@ def give_achievement(member: Member, trigger: str, date: datetime = None, reques
     award = AchievementAward.objects.create(
         member=member,
         achievement=achiev,
-        defaults={'achieved_at': date})
+        achieved_at=date)
     notify_achievement(member, achiev.name, request)
     return award
 
