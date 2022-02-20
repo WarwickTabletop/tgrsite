@@ -41,7 +41,7 @@ class Inventory(models.Model):
 
 
 class Record(models.Model):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=128)
     description = models.TextField(blank=True)
     quantity = models.IntegerField(default=1)
     image = models.URLField(blank=True)
