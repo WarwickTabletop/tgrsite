@@ -31,8 +31,7 @@ class SubType:
 class NotificationTemplates(models.TextChoices):
     NONE = "NO", "No emails"
     NEWSLETTER = "NL", "Newsletter only"
-    BALANCED = "BL", "Balanced"
-    ALL = "AL", "All notifications"
+    ALL = "AL", "Newsletter + Activity summary"
 
 
 class NotificationSubscriptions(models.Model):
@@ -162,19 +161,6 @@ class NotificationSubscriptions(models.Model):
                 NotifType.ACHIEVEMENTS: SubType.WEB,
                 NotifType.OTHER: SubType.NONE
             },
-            NotificationTemplates.BALANCED: {
-                NotifType.NEWSLETTER: SubType.FULL,
-                NotifType.MESSAGE: SubType.WEB,
-                NotifType.LOAN_REQUESTS: SubType.SUMMARY,
-                NotifType.RPG_JOIN: SubType.SUMMARY,
-                NotifType.RPG_LEAVE: SubType.SUMMARY,
-                NotifType.RPG_KICK: SubType.SUMMARY,
-                NotifType.RPG_ADDED: SubType.SUMMARY,
-                NotifType.FORUM_REPLY: SubType.WEB,
-                NotifType.RPG_CREATE: SubType.WEB,
-                NotifType.ACHIEVEMENTS: SubType.WEB,
-                NotifType.OTHER: SubType.NONE
-            },
             NotificationTemplates.ALL: {
                 NotifType.NEWSLETTER: SubType.FULL,
                 NotifType.MESSAGE: SubType.SUMMARY,
@@ -183,10 +169,10 @@ class NotificationSubscriptions(models.Model):
                 NotifType.RPG_LEAVE: SubType.SUMMARY,
                 NotifType.RPG_KICK: SubType.SUMMARY,
                 NotifType.RPG_ADDED: SubType.SUMMARY,
-                NotifType.FORUM_REPLY: SubType.SUMMARY,
+                NotifType.FORUM_REPLY: SubType.WEB,
                 NotifType.RPG_CREATE: SubType.SUMMARY,
-                NotifType.ACHIEVEMENTS: SubType.SUMMARY,
-                NotifType.OTHER: SubType.WEB
+                NotifType.ACHIEVEMENTS: SubType.WEB,
+                NotifType.OTHER: SubType.NONE
             }
         }
 

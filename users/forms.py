@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.db.models import TextChoices
-from django.forms import ModelForm, Textarea, TextInput, CharField, HiddenInput, EmailInput, PasswordInput, ChoiceField, \
-    Form
-from django.forms import ValidationError
+from django.forms import ModelForm, Textarea, TextInput, CharField, HiddenInput, EmailInput, PasswordInput, ChoiceField
+
+from django.forms import ValidationError, Form, RadioSelect
 from django.utils.safestring import mark_safe
 from django.core import validators
 
@@ -64,7 +64,7 @@ class UserForm(ModelForm):
 class SignupForm(ModelForm):
     notification = ChoiceField(choices=NotificationTemplates.choices, required=True,
                                help_text="These can be customised from your profile after signup.",
-                               label="Initial Email Preferences")
+                               label="Initial Email Preferences", widget=RadioSelect())
     captcha = CharField(
         max_length=32, label="Something went wrong generating a captcha. Please contact the web admin")
     captcha_token = CharField(widget=HiddenInput)
