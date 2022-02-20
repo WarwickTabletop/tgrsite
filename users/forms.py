@@ -1,9 +1,12 @@
 from django.contrib.auth.models import User
-from django.forms import ModelForm, Textarea, TextInput, CharField, HiddenInput, EmailInput, PasswordInput, Form
+from django.db.models import TextChoices
+from django.forms import ModelForm, Textarea, TextInput, CharField, HiddenInput, EmailInput, PasswordInput, ChoiceField, \
+    Form
 from django.forms import ValidationError
 from django.utils.safestring import mark_safe
 from django.core import validators
 
+from notifications.models import NotificationTemplates
 from .models import Member
 from .captcha import check_signed_captcha
 
@@ -59,6 +62,9 @@ class UserForm(ModelForm):
 
 
 class SignupForm(ModelForm):
+    notification = ChoiceField(choices=NotificationTemplates.choices, required=True,
+                               help_text="These can be customised from your profile after signup.",
+                               label="Initial Email Preferences")
     captcha = CharField(
         max_length=32, label="Something went wrong generating a captcha. Please contact the web admin")
     captcha_token = CharField(widget=HiddenInput)
