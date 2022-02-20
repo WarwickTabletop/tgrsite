@@ -30,8 +30,8 @@ class SubType:
 
 class NotificationTemplates(models.TextChoices):
     NONE = "NO", "No emails"
-    NEWSLETTER = "NL", "Newsletter only"
-    ALL = "AL", "Newsletter + Activity summary"
+    NEWSLETTER = "NL", "Weekly newsletter"
+    ALL = "AL", "Weekly newsletter + Website activity summary"
 
 
 class NotificationSubscriptions(models.Model):
