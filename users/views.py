@@ -146,7 +146,7 @@ class PasswordReset(PasswordResetView):
 class Signup(FormView):
     form_class = SignupForm
     template_name = "users/signup.html"
-    success_url = "/"
+    success_url = reverse_lazy("users:me")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
