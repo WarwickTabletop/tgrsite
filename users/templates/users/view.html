@@ -39,7 +39,7 @@
                     {% if member != request.user.member %}
                         <em>This user has not written a bio yet! They are a mystery.</em>
                     {% else %}
-                        <em>You haven't provided a bio yet! Go to your <a href="/user/edit">Profile Settings</a> to add one.</em>
+                        <em>You haven't provided a bio yet! Go to <a href="/user/edit">Edit Profile</a> to add one.</em>
                     {% endif %}
                 </div>
             {% endif %}
@@ -92,7 +92,10 @@
         </div>
         {% if request.user.member == member %}
             <div class="card-footer">
-                <a class="btn btn-block btn-outline-primary" href="{% url 'users:edit' %}">Edit profile</a>
+                <div class="btn-group w-100" role="group" aria-label="Edit User">
+                    <a class="btn btn-outline-primary equalwidth" href="{% url 'users:edit' %}">Edit Profile</a>
+                    <a class="btn btn-outline-primary equalwidth" href="{% url 'notifications:notification_settings' %}">Notification and Email Settings</a>
+                </div>
             </div>
         {% endif %}
     </div>
@@ -106,4 +109,13 @@
             <a class="btn btn-block btn-outline-dark mb-3" href="{% url "admin:users_member_change" member.pk %}">Edit</a>
         {% endif %}
     {% endif %}
+{% endblock %}
+
+{% block bottomscripts %}
+    {{block.super}}
+    <style type="text/css">
+        .equalwidth {
+            flex: 1 1 0px !important;
+        }
+    </style>
 {% endblock %}
