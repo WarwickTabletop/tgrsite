@@ -34,7 +34,16 @@
             {% endif %}
             {% if member.bio %}
                 <div class="card card-body card-text markdown-text mb-3">{{ member.bio|parse_md }}</div>
+            {% else %}
+                <div class="card card-body card-text mb-3">
+                    {% if member != request.user.member %}
+                        <em>This user has not written a bio yet! They are a mystery.</em>
+                    {% else %}
+                        <em>You haven't provided a bio yet! Go to your <a href="/user/edit">Profile Settings</a> to add one.</em>
+                    {% endif %}
+                </div>
             {% endif %}
+
 
             <div class="mb-3">
                 <h4>Recent Achievements
