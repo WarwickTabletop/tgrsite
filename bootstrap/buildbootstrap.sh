@@ -9,3 +9,4 @@ postcss "./build/$1" --no-map --use autoprefixer cssnano -o "$2" >&2
 # To run:
 # cd tgrsite/bootstrap
 # ./buildbootstrap.sh source.scss target.css
+# (source is probably a file in this directory, and target is likely in static_resources)
