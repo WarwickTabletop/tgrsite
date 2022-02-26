@@ -52,7 +52,7 @@
                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-fw fa-user"></i>&nbsp;Account
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownProfile">
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
                             <a class="dropdown-item" href="{% url "users:me" %}">
                                 <i class="fas fa-fw fa-user-circle"></i>&nbsp;View Profile
                             </a>
@@ -60,7 +60,7 @@
                                 <i class="fas fa-fw fa-key"></i>&nbsp;Change Password
                             </a>
                             <a class="dropdown-item" href="{% url "notifications:notification_settings" %}">
-                                <i class="fas fa-fw fa-envelope-open-text"></i>&nbsp;Notification Settings
+                                <i class="fas fa-fw fa-envelope-open-text"></i>&nbsp;Notification and Email Settings
                             </a>
                             <a class="dropdown-item" href="/tutorial">
                                 <i class="fas fa-fw fa-question"></i>&nbsp;Tutorial

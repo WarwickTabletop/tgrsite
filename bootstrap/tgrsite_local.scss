@@ -98,5 +98,9 @@ a.anchor {
   overflow-y:auto;
 }
 
+.equalwidth {
+  flex: 1 1 0px !important;
+}
+
 @import "tgrsite_newsletter";
 
