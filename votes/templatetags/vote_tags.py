@@ -3,6 +3,7 @@ import math
 import random
 
 from django import template
+from django.utils.safestring import mark_safe
 
 from votes.models import Election
 
@@ -13,9 +14,9 @@ register = template.Library()
 def sanitized_vote_count(vote: Election):
     value = vote.votes().count()
     if value <= 5:
-        return "<=5"
+        return mark_safe("&le; 5")
     else:
-        return f"{math.floor(value/5)*5}-{math.ceil(value/5)*5}"
+        return f"{math.floor(value/5)*5} - {math.ceil(value/5)*5}"
 
 
 @register.simple_tag(takes_context=True)

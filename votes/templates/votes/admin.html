@@ -38,7 +38,14 @@
             </a>
         {% endfor %}
     </div>
+
     {% if open_elections %}
+        <p>
+            <a href="{% url "votes:reset_vote" %}"
+               class="btn btn-outline-danger btn-block">
+                Reset User Vote
+            </a>
+        </p>
         <h2>Live Votes</h2>
         <ul class="list-group mb-3">
             {% for election in open_elections %}
