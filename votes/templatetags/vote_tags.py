@@ -9,7 +9,7 @@ from votes.models import Election
 register = template.Library()
 
 
-@register.filter(is_safe=True)
+@register.filter()
 def sanitized_vote_count(vote: Election):
     value = vote.votes().count()
     if value <= 5:
@@ -20,3 +20,11 @@ def sanitized_vote_count(vote: Election):
         generator.seed(seed)
         fuzzed = generator.randrange(math.floor(value * 0.8), math.ceil(value * 1.2))
         return f"{math.floor(fuzzed * 0.8)}-{math.ceil(fuzzed * 1.2)}"
+
+
+@register.simple_tag(takes_context=True)
+def current_user_ticket(context, election: Election):
+    try:
+        return election.ticket_set.filter(member=context['user'].member).first()
+    except AttributeError:
+        return None
