@@ -4,7 +4,7 @@ from .models import Election, Candidate, Ticket, FPTPVote, APRVVote, STVVote, ST
 
 
 def archive(modeladmin, request, queryset):
-    queryset.filter(open=False).update(archive=True)
+    queryset.filter(open=False).update(archived=True)
 
 archive.short_description = "Archive selected elections (if closed)"
 
@@ -43,7 +43,7 @@ class STVResultAdmin(admin.ModelAdmin):
 class ElectionAdmin(admin.ModelAdmin):
     inlines = [CandidateInline]
     actions = [archive]
-    list_filter = ['archive','open', 'vote_type']
+    list_filter = ['archived','open', 'vote_type']
     list_display = ['__str__', 'open','vote_type']
 
 

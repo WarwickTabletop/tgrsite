@@ -19,7 +19,7 @@ class Election(models.Model):
     seats = models.IntegerField(
         default=1, help_text="Ignored except in STV. Number of people who can win")
     open = models.BooleanField(default=False)
-    archive = models.BooleanField(default=False, verbose_name="archived")
+    archived = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -33,6 +33,9 @@ class Election(models.Model):
             return self.stvvote_set.all()
         else:
             raise NotImplemented()
+
+    class Meta:
+        ordering = ('id',)
 
 
 class Candidate(models.Model):
