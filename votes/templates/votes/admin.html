@@ -55,6 +55,13 @@
                 </li>
             {% endfor %}
         </ul>
+        <form class="mb-3" method="post" action="{% url "votes:close" %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success btn-block">
+                Close all votes
+            </button>
+        </form>
+
     {% endif %}
     {% if closed_elections %}
         <h2>Results</h2>

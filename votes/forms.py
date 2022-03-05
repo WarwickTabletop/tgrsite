@@ -64,6 +64,10 @@ class DeleteTicketForm(Form):
     elections = ModelMultipleChoiceField(Election.objects.filter(archive=False, open=False))
 
 
+class NullForm(Form):
+    pass
+
+
 class ResetVoteForm(Form):
     uuid = UUIDField(label="Ticket UUID")
 

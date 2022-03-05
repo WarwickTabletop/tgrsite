@@ -4,7 +4,7 @@ from django.urls import path, include
 from .views import ApprovalVoteView, DoneView, ApprovalResultView, HomeView, VoteView, FPTPResultView, FPTPVoteView, \
     STVVoteView, STVResultView, UpdateElection, CreateElection, CreateCandidate, UpdateCandidate, AdminView, TicketView, \
     ResultView, IDTicketView, DateTicketView, STVAllVoteView, AllTicketView, UsernameTicketView, UserTicketView, \
-    DeleteTicketView, ResetVoteView
+    DeleteTicketView, ResetVoteView, CloseElectionView
 
 app_name = "votes"
 
@@ -42,4 +42,5 @@ urlpatterns = [
          CreateCandidate.as_view(), name="create_candidate"),
     path('admin/edit/<int:election>/edit/<int:candidate>/',
          UpdateCandidate.as_view(), name="update_candidate"),
+    path('admin/close_all/', CloseElectionView.as_view(), name="close"),
 ]

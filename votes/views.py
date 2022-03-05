@@ -17,7 +17,7 @@ from users.permissions import PERMS
 
 from users.models import Membership, Member
 from .forms import ElectionForm, CandidateForm, DateTicketForm, IDTicketForm, UsernameTicketForm, AllTicketForm, \
-    MemberTicketForm, DeleteTicketForm, ResetVoteForm
+    MemberTicketForm, DeleteTicketForm, ResetVoteForm, NullForm
 from .models import Election, STVVote, STVPreference, FPTPVote, APRVVote, Candidate, Ticket, Vote, STVResult
 from .stv import Election as StvCalculator
 
@@ -45,13 +45,14 @@ class AdminView(PermissionRequiredMixin, ListView):
     context_object_name = "elections"
 
     def get_queryset(self):
-        return Election.objects.filter(archive=False)
+        return Election.objects.filter(archive=False).order_by('id')
 
     def get_context_data(self, *args, **kwargs):
         ctxt = super().get_context_data(*args, **kwargs)
         ctxt['open_elections'] = self.get_queryset().filter(open=True)
         ctxt['closed_elections'] = self.get_queryset().filter(
-            Q(stvvote__isnull=False) | Q(aprvvote__isnull=False) | Q(fptpvote__isnull=False), open=False)
+            Q(stvvote__isnull=False) | Q(aprvvote__isnull=False) | Q(fptpvote__isnull=False),
+            open=False).distinct()
         return ctxt
 
 
@@ -174,8 +175,20 @@ class ResetVoteView(PermissionRequiredMixin, FormView):
                 ticket.spent = False
                 ticket.save()
         except DatabaseError:
-            add_message(self.request, "Unable to delete vote", messages.ERROR)
+            add_message(self.request, messages.ERROR, "Unable to delete vote")
 
+        return super().form_valid(form)
+
+
+class CloseElectionView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.change_election
+    form_class = NullForm
+    template_name = "votes/ticket.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        Election.objects.filter(open=True, archive=False).update(open=False)
+        add_message(self.request, messages.SUCCESS, "All votes closed")
         return super().form_valid(form)
 
 
