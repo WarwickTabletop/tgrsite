@@ -33,30 +33,30 @@ class CandidateForm(ModelForm):
 class IDTicketForm(Form):
     ids = CharField(help_text="A list of whitespace separated uni-ids",
                     widget=Textarea(), label="IDs")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False))
 
 
 class UsernameTicketForm(Form):
     ids = CharField(help_text="A list of whitespace separated usernames",
                     widget=Textarea(), label="Usernames")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False))
 
 
 class AllTicketForm(Form):
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False))
 
 
 class MemberTicketForm(Form):
     members = ModelMultipleChoiceField(Member.objects.all())
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False))
 
 
 class DateTicketForm(Form):
     date = DateField(widget=SelectDateWidget(),
                      help_text="Select the date before which their membership should have been verified." + \
                          "Note that this will only select those who are currently members of the society.")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False))
 
 
 class DeleteTicketForm(Form):
-    elections = ModelMultipleChoiceField(Election.objects.filter(open=False))
+    elections = ModelMultipleChoiceField(Election.objects.filter(archive=False, open=False))

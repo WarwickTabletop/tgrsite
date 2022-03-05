@@ -19,7 +19,7 @@ class Election(models.Model):
     seats = models.IntegerField(
         default=1, help_text="Ignored except in STV. Number of people who can win")
     open = models.BooleanField(default=False)
-    archive = models.BooleanField(default=False)
+    archive = models.BooleanField(default=False, verbose_name="archived")
 
     def __str__(self):
         return self.name

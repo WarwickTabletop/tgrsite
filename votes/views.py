@@ -26,8 +26,13 @@ class HomeView(LoginRequiredMixin, ListView):
     context_object_name = "elections"
 
     def get_queryset(self):
-        tickets = self.request.user.member.ticket_set.filter(spent=False)
+        tickets = self.request.user.member.ticket_set.filter()
         return Election.objects.filter(ticket__in=tickets, open=True)
+
+    def get_context_data(self, *args, **kwargs):
+        ctxt = super().get_context_data(*args, **kwargs)
+        ctxt['tickets'] = self.request.user.member.ticket_set.filter()
+        return ctxt
 
 
 class AdminView(PermissionRequiredMixin, ListView):
@@ -37,7 +42,7 @@ class AdminView(PermissionRequiredMixin, ListView):
     context_object_name = "elections"
 
     def get_queryset(self):
-        return Election.objects.all()
+        return Election.objects.filter(archive=False)
 
     def get_context_data(self, *args, **kwargs):
         ctxt = super().get_context_data(*args, **kwargs)
