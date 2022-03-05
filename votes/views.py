@@ -1,7 +1,10 @@
 import random
 from operator import itemgetter, attrgetter
 
-from django.shortcuts import render
+from django.contrib.messages import add_message
+from django.contrib.messages import constants as messages
+from django.db import transaction, DatabaseError
+from django.shortcuts import render, Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Q
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -14,7 +17,7 @@ from users.permissions import PERMS
 
 from users.models import Membership, Member
 from .forms import ElectionForm, CandidateForm, DateTicketForm, IDTicketForm, UsernameTicketForm, AllTicketForm, \
-    MemberTicketForm, DeleteTicketForm
+    MemberTicketForm, DeleteTicketForm, ResetVoteForm
 from .models import Election, STVVote, STVPreference, FPTPVote, APRVVote, Candidate, Ticket, Vote, STVResult
 from .stv import Election as StvCalculator
 
@@ -145,6 +148,34 @@ class UserTicketView(PermissionRequiredMixin, FormView):
             for election in form.cleaned_data['elections']:
                 Ticket.objects.get_or_create(
                     member_id=member.id, election=election)
+        return super().form_valid(form)
+
+
+class ResetVoteView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.change_ticket
+    form_class = ResetVoteForm
+    template_name = "votes/reset_vote.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        uuid = form['uuid']
+        ticket = get_object_or_404(Ticket, uuid=uuid)
+        if ticket.election.vote_type == Election.Types.FPTP:
+            vote = get_object_or_404(FPTPVote, uuid=uuid)
+        elif ticket.election.vote_type == Election.Types.STV:
+            vote = get_object_or_404(STVVote, uuid=uuid)
+        elif ticket.election.vote_type == Election.Types.APRV:
+            vote = get_object_or_404(APRVVote, uuid=uuid)
+        else:
+            raise Http404()
+        try:
+            with transaction.atomic():
+                vote.delete()
+                ticket.spent = False
+                ticket.save()
+        except DatabaseError:
+            add_message(self.request, "Unable to delete vote", messages.ERROR)
+
         return super().form_valid(form)
 
 
