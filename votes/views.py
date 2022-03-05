@@ -3,7 +3,7 @@ from operator import itemgetter, attrgetter
 
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import View, TemplateView, ListView, DetailView, RedirectView, CreateView, UpdateView, \
@@ -14,7 +14,7 @@ from users.permissions import PERMS
 
 from users.models import Membership, Member
 from .forms import ElectionForm, CandidateForm, DateTicketForm, IDTicketForm, UsernameTicketForm, AllTicketForm, \
-    MemberTicketForm
+    MemberTicketForm, DeleteTicketForm
 from .models import Election, STVVote, STVPreference, FPTPVote, APRVVote, Candidate, Ticket, Vote, STVResult
 from .stv import Election as StvCalculator
 
@@ -38,6 +38,13 @@ class AdminView(PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         return Election.objects.all()
+
+    def get_context_data(self, *args, **kwargs):
+        ctxt = super().get_context_data(*args, **kwargs)
+        ctxt['open_elections'] = self.get_queryset().filter(open=True)
+        ctxt['closed_elections'] = self.get_queryset().filter(
+            Q(stvvote__isnull=False) | Q(aprvvote__isnull=False) | Q(fptpvote__isnull=False), open=False)
+        return ctxt
 
 
 class TicketView(PermissionRequiredMixin, TemplateView):
@@ -74,6 +81,18 @@ class DateTicketView(PermissionRequiredMixin, FormView):
             for election in form.cleaned_data['elections']:
                 Ticket.objects.get_or_create(
                     member_id=membership.member_id, election=election)
+        return super().form_valid(form)
+
+
+class DeleteTicketView(PermissionRequiredMixin, FormView):
+    permission_required = PERMS.votes.delete_ticket
+    form_class = DeleteTicketForm
+    template_name = "votes/delete_tickets.html"
+    success_url = reverse_lazy('votes:admin')
+
+    def form_valid(self, form):
+        for election in form.cleaned_data['elections']:
+            Ticket.objects.filter(election=election).delete()
         return super().form_valid(form)
 
 
