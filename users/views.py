@@ -13,6 +13,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView, View, DetailView, TemplateView
 
+from notifications.models import NotificationSubscriptions
 from forum.models import Thread, Response
 from rpgs.models import Rpg
 from .captcha import create_signed_captcha
@@ -145,7 +146,7 @@ class PasswordReset(PasswordResetView):
 class Signup(FormView):
     form_class = SignupForm
     template_name = "users/signup.html"
-    success_url = "/"
+    success_url = reverse_lazy("users:me")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -173,6 +174,8 @@ class Signup(FormView):
                    form.cleaned_data['email'], form.cleaned_data['password'])
         auth = authenticate(self.request, username=form.cleaned_data['username'],
                             password=form.cleaned_data['password'])
+        notifs, n = NotificationSubscriptions.objects.get_or_create(member=auth.member)
+        notifs.update_from_template(form.cleaned_data['notification'])
         if auth is None:
             raise RuntimeError("Impossible state reached")
         login(self.request, auth)

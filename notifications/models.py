@@ -28,6 +28,12 @@ class SubType:
     FULL = 3
 
 
+class NotificationTemplates(models.TextChoices):
+    NONE = "NO", "No emails"
+    NEWSLETTER = "NL", "Weekly newsletter"
+    ALL = "AL", "Weekly newsletter + Website activity summary"
+
+
 class NotificationSubscriptions(models.Model):
     notification_types = [
         (NotifType.NEWSLETTER, 'Newsletter'),
@@ -94,12 +100,86 @@ class NotificationSubscriptions(models.Model):
 
         return mapping.get(category, SubType.NONE)
 
+    def set_category_subscription(self, category, value):
+        # Map setting value to its ID value
+        if category == NotifType.NEWSLETTER:
+            self.newsletter = value
+        if category == NotifType.MESSAGE:
+            self.message = value
+        if category == NotifType.LOAN_REQUESTS:
+            self.loan_request = value
+        if category == NotifType.RPG_JOIN:
+            self.rpg_join = value
+        if category == NotifType.RPG_LEAVE:
+            self.rpg_leave = value
+        if category == NotifType.RPG_KICK:
+            self.rpg_kick = value
+        if category == NotifType.RPG_ADDED:
+            self.rpg_add = value
+        if category == NotifType.FORUM_REPLY:
+            self.forum_reply = value
+        if category == NotifType.RPG_CREATE:
+            self.rpg_new = value
+        if category == NotifType.ACHIEVEMENTS:
+            self.achievement_got = value
+        if category == NotifType.OTHER:
+            self.other = value
+
     def __str__(self):
         return str(self.member.equiv_user.username)
 
     class Meta:
         verbose_name_plural = "Notifications Subscriptions"
         verbose_name = "Notifications Subscription"
+
+    def update_from_template(self, template):
+        # define 4 template notification subscriptions people can use on signup
+        templates = {
+            NotificationTemplates.NONE: {
+                NotifType.NEWSLETTER: SubType.WEB,
+                NotifType.MESSAGE: SubType.WEB,
+                NotifType.LOAN_REQUESTS: SubType.WEB,
+                NotifType.RPG_JOIN: SubType.WEB,
+                NotifType.RPG_LEAVE: SubType.WEB,
+                NotifType.RPG_KICK: SubType.WEB,
+                NotifType.RPG_ADDED: SubType.WEB,
+                NotifType.FORUM_REPLY: SubType.WEB,
+                NotifType.RPG_CREATE: SubType.NONE,
+                NotifType.ACHIEVEMENTS: SubType.WEB,
+                NotifType.OTHER: SubType.NONE
+            },
+            NotificationTemplates.NEWSLETTER: {
+                NotifType.NEWSLETTER: SubType.FULL,
+                NotifType.MESSAGE: SubType.WEB,
+                NotifType.LOAN_REQUESTS: SubType.WEB,
+                NotifType.RPG_JOIN: SubType.WEB,
+                NotifType.RPG_LEAVE: SubType.WEB,
+                NotifType.RPG_KICK: SubType.WEB,
+                NotifType.RPG_ADDED: SubType.WEB,
+                NotifType.FORUM_REPLY: SubType.WEB,
+                NotifType.RPG_CREATE: SubType.NONE,
+                NotifType.ACHIEVEMENTS: SubType.WEB,
+                NotifType.OTHER: SubType.NONE
+            },
+            NotificationTemplates.ALL: {
+                NotifType.NEWSLETTER: SubType.FULL,
+                NotifType.MESSAGE: SubType.SUMMARY,
+                NotifType.LOAN_REQUESTS: SubType.SUMMARY,
+                NotifType.RPG_JOIN: SubType.SUMMARY,
+                NotifType.RPG_LEAVE: SubType.SUMMARY,
+                NotifType.RPG_KICK: SubType.SUMMARY,
+                NotifType.RPG_ADDED: SubType.SUMMARY,
+                NotifType.FORUM_REPLY: SubType.WEB,
+                NotifType.RPG_CREATE: SubType.SUMMARY,
+                NotifType.ACHIEVEMENTS: SubType.WEB,
+                NotifType.OTHER: SubType.NONE
+            }
+        }
+
+        template = templates[template]
+        for k, v in template.items():
+            self.set_category_subscription(k, v)
+        self.save()
 
 
 class Notification(models.Model):

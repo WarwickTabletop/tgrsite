@@ -97,8 +97,7 @@ THIS IS USED BY THE SITE
                     {% endif %}
                     {% if request.user.is_authenticated %}
                         <li><a class="card-link" href="{% url 'users:me' %}">My profile</a></li>
-                        <li><a class="card-link" href="{% url 'notifications:notification_settings' %}">Notification
-                            Settings</a></li>
+                        <li><a class="card-link" href="{% url 'notifications:notification_settings' %}">Notification and Email Settings</a></li>
                         <li><a class="card-link" href="{% url 'users:logout' %}">Log out</a></li>
                     {% else %}
                         <li><a class="card-link" href="{% url 'users:login' %}">Log in</a> / <a class="card-link ml-0"
