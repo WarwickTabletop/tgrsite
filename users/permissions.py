@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
-from django.db import models
+from django.db import models, ProgrammingError, OperationalError
 
 from tgrsite.utils import PermsError
 
@@ -35,14 +35,17 @@ class Permissions:
     def __init__(self):
         self.apps = {}
 
-        perms = Permission.objects.all()
-        for perm in perms:
-            app = perm.content_type.app_label
-            if app not in self.apps:
-                self.apps[app] = Permissions.AppPermissions(app)
-            self.apps[app].register(perm.codename)
-        for i in self.apps.values():
-            i.finalise()
+        try:
+            perms = Permission.objects.all()
+            for perm in perms:
+                app = perm.content_type.app_label
+                if app not in self.apps:
+                    self.apps[app] = Permissions.AppPermissions(app)
+                self.apps[app].register(perm.codename)
+            for i in self.apps.values():
+                i.finalise()
+        except (ProgrammingError, OperationalError):
+            pass
 
     @classmethod
     def get(cls):
