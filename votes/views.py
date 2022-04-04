@@ -159,7 +159,7 @@ class ResetVoteView(PermissionRequiredMixin, FormView):
     success_url = reverse_lazy('votes:admin')
 
     def form_valid(self, form):
-        uuid = form['uuid']
+        uuid = form.cleaned_data['uuid']
         ticket = get_object_or_404(Ticket, uuid=uuid)
         if ticket.election.vote_type == Election.Types.FPTP:
             vote = get_object_or_404(FPTPVote, uuid=uuid)
