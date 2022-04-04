@@ -1,4 +1,5 @@
 {% extends 'tgrsite/main.html' %}
+{% load vote_tags %}
 
 {% block title %}Votes{% endblock %}
 {% block pagetitle %}Votes{% endblock %}
@@ -26,7 +27,7 @@
     <p>
         <a href="{% url "votes:tickets" %}"
            class="btn btn-outline-success btn-block">
-            Issue Tickets
+            Manage Tickets
         </a>
     </p>
     <div class="list-group mb-3">
@@ -37,16 +38,40 @@
             </a>
         {% endfor %}
     </div>
-    <h2>Results</h2>
-    <div class="list-group">
-        {% for election in object_list %}
-            {% if election.open %}
-            {% else %}
-            <a href="{% url "votes:results" election.id %}"
-               class="list-group-item list-group-item-action">
-                {{ election.name }}
+
+    {% if open_elections %}
+        <p>
+            <a href="{% url "votes:reset_vote" %}"
+               class="btn btn-outline-danger btn-block">
+                Reset User Vote
             </a>
-            {% endif %}
-        {% endfor %}
-    </div>
+        </p>
+        <h2>Live Votes</h2>
+        <ul class="list-group mb-3">
+            {% for election in open_elections %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ election.name }}
+                    <span class="badge badge-primary badge-pill">{{ election|sanitized_vote_count }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+        <form class="mb-3" method="post" action="{% url "votes:close" %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success btn-block">
+                Close all votes
+            </button>
+        </form>
+
+    {% endif %}
+    {% if closed_elections %}
+        <h2>Results</h2>
+        <div class="list-group">
+            {% for election in closed_elections %}
+                <a href="{% url "votes:results" election.id %}"
+                   class="list-group-item list-group-item-action">
+                    {{ election.name }}
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endblock %}

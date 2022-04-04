@@ -1,0 +1,16 @@
+{% extends 'tgrsite/main.html' %}
+{% load markdown_tags %}
+
+{% block title %}Tickets - Votes{% endblock %}
+{% block pagetitle %}Delete Tickets{% endblock %}
+
+{% block breadcrumbs_parents %}
+    <li class="breadcrumb-item"><a href="{% url 'votes:elections' %}">Votes</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'votes:admin' %}">Admin</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'votes:tickets' %}">Tickets</a></li>
+{% endblock %}
+{% block breadcrumbs_child %}Delete{% endblock %}
+
+{% block body %}
+    {% include "parts/render_form.html" with colour="danger" save="Delete" %}
+{% endblock %}
