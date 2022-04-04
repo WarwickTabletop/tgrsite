@@ -1,0 +1,34 @@
+{% extends 'tgrsite/main.html' %}
+{% load markdown_tags %}
+
+{% block title %}Reset - Votes{% endblock %}
+{% block pagetitle %}Reset Vote{% endblock %}
+
+{% block breadcrumbs_parents %}
+    <li class="breadcrumb-item"><a href="{% url 'votes:elections' %}">Votes</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'votes:admin' %}">Admin</a></li>
+{% endblock %}
+{% block breadcrumbs_child %}Reset Vote{% endblock %}
+
+{% block body %}
+    <div class="card bg-warning mb-3">
+        <h3 class="card-header"><i class="fas fa-exclamation-triangle"></i> Warning</h3>
+        <div class="card-body">
+            <p class="card-text">
+                You should <strong>only</strong> do this at the behest of the person who cast it,
+                and only if they are sure that they want the vote reset.
+            </p>
+            <p class="card-text">
+                If you are even slightly unsure that the vote UUID might not be theirs, you shouldn't delete it.
+            </p>
+            <p class="card-text">
+                This section of the voting system is by far the quickest way to invalidate the election,
+                so please be careful.
+            </p>
+        </div>
+    </div>
+    <p class="card-text">
+        This deletes a specific vote from the election by UUID. Once the vote has been deleted through this method, the user will once again be able to cast a vote in that election.
+    </p>
+    {% include "parts/render_form.html" with colour="danger" save="Reset Vote" %}
+{% endblock %}

@@ -1,9 +1,9 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
 from .views import ApprovalVoteView, DoneView, ApprovalResultView, HomeView, VoteView, FPTPResultView, FPTPVoteView, \
     STVVoteView, STVResultView, UpdateElection, CreateElection, CreateCandidate, UpdateCandidate, AdminView, TicketView, \
-    ResultView, IDTicketView, DateTicketView, STVAllVoteView, AllTicketView, UsernameTicketView, UserTicketView
+    ResultView, IDTicketView, DateTicketView, STVAllVoteView, AllTicketView, UsernameTicketView, UserTicketView, \
+    DeleteTicketView, ResetVoteView, CloseElectionView
 
 app_name = "votes"
 
@@ -25,13 +25,16 @@ urlpatterns = [
     path('<int:election>/results/stv/votes/',
          STVAllVoteView.as_view(), name="stv_all_votes"),
     path('admin/', AdminView.as_view(), name="admin"),
+    path('admin/reset_vote/', ResetVoteView.as_view(), name="reset_vote"),
     path('admin/tickets/', TicketView.as_view(), name="tickets"),
-    path('admin/tickets/id', IDTicketView.as_view(), name="tickets_id"),
-    path('admin/tickets/date', DateTicketView.as_view(), name="tickets_date"),
-    path('admin/tickets/all', AllTicketView.as_view(), name="tickets_all"),
-    path('admin/tickets/username',
+    path('admin/tickets/id/', IDTicketView.as_view(), name="tickets_id"),
+    path('admin/tickets/date/', DateTicketView.as_view(), name="tickets_date"),
+    path('admin/tickets/all/', AllTicketView.as_view(), name="tickets_all"),
+    path('admin/tickets/username/',
          UsernameTicketView.as_view(), name="tickets_username"),
-    path('admin/tickets/user', UserTicketView.as_view(), name="tickets_user"),
+    path('admin/tickets/user/', UserTicketView.as_view(), name="tickets_user"),
+    path('admin/tickets/delete/', DeleteTicketView.as_view(),
+         name="tickets_delete"),
     path('admin/create/', CreateElection.as_view(), name="create_election"),
     path('admin/edit/<int:election>/',
          UpdateElection.as_view(), name="update_election"),
@@ -39,4 +42,5 @@ urlpatterns = [
          CreateCandidate.as_view(), name="create_candidate"),
     path('admin/edit/<int:election>/edit/<int:candidate>/',
          UpdateCandidate.as_view(), name="update_candidate"),
+    path('admin/close_all/', CloseElectionView.as_view(), name="close"),
 ]

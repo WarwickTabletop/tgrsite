@@ -1,8 +1,10 @@
-from django.forms import Form, ModelForm, Textarea, DateField, ModelMultipleChoiceField, SelectDateWidget, CharField
+from django.core.exceptions import ValidationError
+from django.forms import Form, ModelForm, Textarea, DateField, ModelMultipleChoiceField, SelectDateWidget, CharField, \
+    UUIDField
 from django.urls import reverse_lazy
 
 from users.models import Member
-from .models import Election, Candidate
+from .models import Election, Candidate, Ticket
 
 MD_INPUT_SAFE = {
     'class': 'markdown-input',
@@ -33,26 +35,45 @@ class CandidateForm(ModelForm):
 class IDTicketForm(Form):
     ids = CharField(help_text="A list of whitespace separated uni-ids",
                     widget=Textarea(), label="IDs")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archived=False))
 
 
 class UsernameTicketForm(Form):
     ids = CharField(help_text="A list of whitespace separated usernames",
                     widget=Textarea(), label="Usernames")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archived=False))
 
 
 class AllTicketForm(Form):
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archived=False))
 
 
 class MemberTicketForm(Form):
     members = ModelMultipleChoiceField(Member.objects.all())
-    elections = ModelMultipleChoiceField(Election.objects.all())
+    elections = ModelMultipleChoiceField(Election.objects.filter(archived=False))
 
 
 class DateTicketForm(Form):
     date = DateField(widget=SelectDateWidget(),
                      help_text="Select the date before which their membership should have been verified." + \
-                         "Note that this will only select those who are currently members of the society.")
-    elections = ModelMultipleChoiceField(Election.objects.all())
+                               "Note that this will only select those who are currently members of the society.")
+    elections = ModelMultipleChoiceField(Election.objects.filter(archived=False))
+
+
+class DeleteTicketForm(Form):
+    elections = ModelMultipleChoiceField(
+        Election.objects.filter(archived=False, open=False))
+
+
+class NullForm(Form):
+    pass
+
+
+class ResetVoteForm(Form):
+    uuid = UUIDField(label="Ticket UUID")
+
+    def clean_uuid(self):
+        uuid_value = self.cleaned_data['uuid']
+        if not Ticket.objects.filter(spent=True, uuid=uuid_value).exists():
+            raise ValidationError("Incorrect UUID")
+        return uuid_value
