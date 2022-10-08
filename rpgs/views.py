@@ -17,6 +17,7 @@ from django.views import generic
 from messaging.views import create_group
 from notifications.models import NotifType
 from notifications.utils import notify, notify_everybody, notify_discord
+from templatetags.lib import IdempotentMixin
 from templatetags.templatetags.markdown_tags import parse_md_text
 from .forms import RpgForm, RpgCreateForm
 from .models import Rpg, Tag
@@ -98,7 +99,7 @@ def notify_rpg(object):
     object.save()
 
 
-class Create(LoginRequiredMixin, generic.CreateView):
+class Create(LoginRequiredMixin, IdempotentMixin, generic.CreateView):
     template_name = 'rpgs/create.html'
     model = Rpg
     form_class = RpgCreateForm
