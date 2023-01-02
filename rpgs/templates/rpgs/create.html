@@ -8,5 +8,5 @@
 {% block breadcrumbs_child %}Create{% endblock %}
 
 {% block body %}
-    {% include "parts/render_form.html" %}
+    {% include "parts/render_form.html" with idempotent=1 %}
 {% endblock %}

@@ -1,6 +1,9 @@
 {% load crispy_forms_filters %}
 <form class="mb-2" method="post">
     {% csrf_token %}
+    {% if idempotent %}
+    <input type="hidden" name="_idempotency_token" data-wtt-idempotency="true">
+    {% endif %}
     {{ form|crispy }}
     <input type="submit" class="form-control btn-outline-{% if colour %}{{ colour }}{% else %}primary{% endif %}" value="{% if save %}{{ save }}{% else %}Save{% endif %}">
 </form>

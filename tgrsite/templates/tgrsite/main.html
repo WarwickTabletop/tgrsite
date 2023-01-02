@@ -97,7 +97,8 @@ THIS IS USED BY THE SITE
                     {% endif %}
                     {% if request.user.is_authenticated %}
                         <li><a class="card-link" href="{% url 'users:me' %}">My profile</a></li>
-                        <li><a class="card-link" href="{% url 'notifications:notification_settings' %}">Notification and Email Settings</a></li>
+                        <li><a class="card-link" href="{% url 'notifications:notification_settings' %}">Notification and
+                            Email Settings</a></li>
                         <li><a class="card-link" href="{% url 'users:logout' %}">Log out</a></li>
                     {% else %}
                         <li><a class="card-link" href="{% url 'users:login' %}">Log in</a> / <a class="card-link ml-0"
@@ -137,6 +138,8 @@ THIS IS USED BY THE SITE
     <script src="{% static 'bootstrap3-typeahead.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"
             integrity="sha256-0H3Nuz3aug3afVbUlsu12Puxva3CP4EhJtPExqs54Vg=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"
+            integrity="sha256-S7uAbnQ+Ibyfl7YvwFZOCIm38x7p1Iw/K4XU4A/mKcw=" crossorigin="anonymous"></script>
     {# Markdown editor #}
     <script src="{% static "markdown-editor.min.js" %}"></script>
     <script>
@@ -146,6 +149,12 @@ THIS IS USED BY THE SITE
             $(".markdown-input").MarkdownEditor(false);
             $('[data-toggle="tooltip"]').tooltip();
             $('[data-target="#helpmodal"]').tooltip();
+            $('[data-wtt-idempotency="true"]').val((index, value) => {
+                if (value === "") {
+                    return uuidv4()
+                }
+                return value
+            });
         });
 
         function setCookieForeverish(cname, cvalue) {
