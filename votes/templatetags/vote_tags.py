@@ -16,7 +16,7 @@ def sanitized_vote_count(vote: Election):
     if value <= 5:
         return mark_safe("&le; 5")
     else:
-        return f"{math.floor(value/5)*5} - {math.ceil(value/5)*5}"
+        return f"{math.floor(value/5)*5} - {math.ceil((value+1)/5)*5}"
 
 
 @register.simple_tag(takes_context=True)
