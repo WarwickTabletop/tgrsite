@@ -1,22 +1,70 @@
 {% extends "votes/approval_results.html" %}
+{% load vote_tags %}
 {% block results %}
     <h2>Total Turnout: {{ election.stvvote_set.count }}</h2>
     <h2>Available seats: {{ election.seats }}</h2>
     <h2>Winner{{ result.winners.all|pluralize }}</h2>
-    <div class="list-group">
+    <div class="list-group mb-3">
         {% for winner in result.winners.all %}
-            <div class="list-group-item mb-3">
+            <div class="list-group-item">
                 {{ winner.name }}
             </div>
         {% endfor %}
     </div>
     <h3>Breakdown</h3>
-    <div class="list-group mb-2">
-        {% for i in election.candidate_set.all|dictsort:"id" %}
-            <p class="list-group-item"><strong class="d-inline-block align-middle mr-2" style="width: 2rem">{{ i.id }}</strong><span class="d-inline-block align-middle">{{ i.name }}</span></p>
+    {% vote_breakdown_table election as vote_summary %}
+    {% if vote_summary %}
+    <table class="table table-bordered">
+        <thead>
+        {% for row in vote_summary.head %}
+            <tr>
+                {% for content,width,style in row %}
+                    {% if style == "header" %}
+                        <th colspan="{{ width }}">{{ content }}</th>
+                    {% else %}
+                        <td colspan="{{ width }}">{{ content }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
         {% endfor %}
+        </thead>
+        <tbody>
+        {% for row in vote_summary.body %}
+            <tr>
+                {% for content,width,style in row %}
+                    {% if style == "header" %}
+                        <th colspan="{{ width }}">{{ content }}</th>
+                    {% elif style == "changed" %}
+                        <td colspan="{{ width }}"><strong>{{ content }}</strong></td>
+                    {% elif style == "float" %}
+                        <td colspan="{{ width }}">{{ content|floatformat }}</td>
+                    {% else %}
+                        <td colspan="{{ width }}">{{ content }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="card mb-2">
+            <div class="card-body text-muted">Unable to generate summary</div>
+        </div>
+    {% endif %}
+    <h3>Detailed Log</h3>
+    <button class="btn btn-primary " data-toggle="collapse" data-target="#detaillog" aria-expanded="false"
+            aria-controls="detaillog">Show / Hide
+    </button>
+    <div class="collapse" id="detaillog">
+        <ul class="list-group mb-2 mt-2">
+            {% for i in election.candidate_set.all|dictsort:"id" %}
+                <li class="list-group-item"><strong class="d-inline-block align-middle mr-2"
+                                                    style="width: 2rem">{{ i.id }}</strong><span
+                  class="d-inline-block align-middle">{{ i.name }}</span></li>
+            {% endfor %}
+        </ul>
+        <pre class="mb-0">{{ result.full_log }}</pre>
     </div>
-    <pre>{{ result.full_log }}</pre>
 {% endblock %}
 
 {% block leftcontents %}
