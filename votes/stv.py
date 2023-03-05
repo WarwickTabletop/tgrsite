@@ -89,6 +89,7 @@ class Election:
     def round(self):
         self.rounds += 1
         # B1
+        shortcircuit = False
         electable = []
         for candidate in self.candidates:
             if candidate.status == States.ELECTED or candidate.status == States.HOPEFUL:
@@ -96,8 +97,7 @@ class Election:
         if len(electable) <= self.seats:
             for i in electable:
                 i.status = States.ELECTED
-            self._report()
-            raise StopIteration("Election Finished")
+            shortcircuit = True
 
         # B2a
         wastage = Fraction(0)
@@ -115,6 +115,12 @@ class Election:
 
         # B2b
         quota = Fraction(sum(scores.values()), self.seats + 1)
+
+        if shortcircuit:
+            # Defer shortcircuit until after scores calculated to log one extra line
+            self._log(scores, wastage, quota)
+            self._report()
+            raise StopIteration("Election Finished")
 
         # B2c
         elected = False
@@ -163,13 +169,15 @@ class Election:
             self._addlog("-Tiebreak-")
             self._addlog(a)
             self._addlog()
-            self._addaction("tiebreak", {'round':self.rounds, 'candidates':[str(candidate[0].id) for candidate in candidates], 'choice': str(a.id)})
+            self._addaction("tiebreak",
+                            {'round': self.rounds, 'candidates': [str(candidate[0].id) for candidate in candidates],
+                             'choice': str(a.id)})
         else:
             a = candidates[0][0]
         return a
 
     def _addaction(self, type, details):
-        self.actlog.append({'type':type, 'details':details})
+        self.actlog.append({'type': type, 'details': details})
 
     def _addlog(self, *args):
         string = " ".join(map(str, args))
@@ -186,16 +194,20 @@ class Election:
             self._addlog("Status:", str(i.status))
             self._addlog("Votes:", str(scores[i].limit_denominator(1000)))
             self._addlog()
-            candstates[str(i.id)] = {"keep_factor":float(i.keep_factor.limit_denominator(1000)), 'status': str(i.status), 'votes':float(scores[i].limit_denominator(1000))}
+            candstates[str(i.id)] = {"keep_factor": float(i.keep_factor.limit_denominator(1000)),
+                                     'status': str(i.status), 'votes': float(scores[i].limit_denominator(1000))}
         self._addlog("Wastage:", str(wastage.limit_denominator(1000)))
         self._addlog("Threshold:", str(quota.limit_denominator(1000)))
         self._addlog()
-        self._addaction("round", {'round':self.rounds, 'candidates':candstates, 'wastage': float(wastage.limit_denominator(1000)), 'threshold': float(quota.limit_denominator(1000))})
+
+        self._addaction("round", {'round': self.rounds, 'candidates': candstates,
+                                  'wastage': float(wastage.limit_denominator(1000)),
+                                  'threshold': float(quota.limit_denominator(1000))})
 
     def _report(self):
         self._addlog("**Election Results**")
         self._addlog()
-        candstates = {"ELECTED": [], "DEFEATED":[], "WITHDRAWN":[]}
+        candstates = {"ELECTED": [], "DEFEATED": [], "WITHDRAWN": []}
         self._addlog("ELECTED")
         for i in filter(lambda x: x.status == States.ELECTED, self.candidates):
             self._addlog(" Candidate", i.id)
@@ -212,6 +224,17 @@ class Election:
         self._addaction("report", candstates)
 
     def full_election(self):
+        # Log initial state
+        scores = {k: Fraction(0) for k in self.candidates}
+        wastage = Fraction(0)
+        for vote in self.votes:
+            if len(vote.prefs) > 0:
+                scores[vote.prefs[0]] += 1
+            else:
+                wastage += 1
+        quota = Fraction(sum(scores.values()), self.seats + 1)
+        self._log(scores, wastage, quota)
+
         try:
             while True:
                 self.round()
@@ -276,10 +299,10 @@ def two_available_three():
 def two_available_four():
     c = {1, 2, 3, 4}
     v = (
-        [(4, 2, 1, 3)] * 4
-        + [(3, 2, 4, 1)] * 5
-        + [(2, 1, 4, 3)] * 3
-        + [(1, 4, 2, 3)] * 2
+            [(4, 2, 1, 3)] * 4
+            + [(3, 2, 4, 1)] * 5
+            + [(2, 1, 4, 3)] * 3
+            + [(1, 4, 2, 3)] * 2
     )
     e = Election(c, v, 2)
     e.full_election()

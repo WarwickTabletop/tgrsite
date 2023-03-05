@@ -14,38 +14,7 @@
     <h3>Breakdown</h3>
     {% vote_breakdown_table election as vote_summary %}
     {% if vote_summary %}
-    <table class="table table-bordered">
-        <thead>
-        {% for row in vote_summary.head %}
-            <tr>
-                {% for content,width,style in row %}
-                    {% if style == "header" %}
-                        <th colspan="{{ width }}">{{ content }}</th>
-                    {% else %}
-                        <td colspan="{{ width }}">{{ content }}</td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </thead>
-        <tbody>
-        {% for row in vote_summary.body %}
-            <tr>
-                {% for content,width,style in row %}
-                    {% if style == "header" %}
-                        <th colspan="{{ width }}">{{ content }}</th>
-                    {% elif style == "changed" %}
-                        <td colspan="{{ width }}"><strong>{{ content }}</strong></td>
-                    {% elif style == "float" %}
-                        <td colspan="{{ width }}">{{ content|floatformat }}</td>
-                    {% else %}
-                        <td colspan="{{ width }}">{{ content }}</td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        {% include "votes/parts/table.html" with table=vote_summary %}
     {% else %}
         <div class="card mb-2">
             <div class="card-body text-muted">Unable to generate summary</div>

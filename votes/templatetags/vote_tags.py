@@ -32,8 +32,6 @@ def vote_breakdown_table(election: Election):
     if actions is None:
         return {}
     candidates = [str(x.id) for x in election.candidate_set.all()]  # JSON keys have to be strings
-    if len(candidates) <= election.seats:
-        return {}  # No logs created if election didn't have enough candidates
     scores = {candidate:[] for candidate in candidates}
     states = {candidate:["HOPEFUL"] for candidate in candidates} # States are offset by one round due to r0
     wastage = []
@@ -44,7 +42,7 @@ def vote_breakdown_table(election: Election):
     for i in actions:
         type_ = i["type"]
         detail = i["details"]
-        if type_ == "round" and not shortcircuit:
+        if type_ == "round" and not shortcircuit and detail['round'] != 0:
             tiebreak.append(False)
             sum_ = detail['wastage']
             wastage.append(detail['wastage'])
@@ -57,7 +55,7 @@ def vote_breakdown_table(election: Election):
                 sum_ += detail['candidates'][candidate]['votes']
             total.append(sum_)
             elected = sum([1 for x in detail['candidates'].values() if x['status']=='ELECTED'])
-            if elected == election.seats:
+            if elected == election.seats and any(detail['candidates'][candidate]['status'] == "HOPEFUL" for candidate in candidates):
                 shortcircuit = True
                 sum_ = detail['wastage']
                 for candidate in candidates:
@@ -70,17 +68,6 @@ def vote_breakdown_table(election: Election):
                 total.append(sum_)
                 wastage.append(detail['wastage'])
                 threshold.append(detail['threshold'])
-
-    if not shortcircuit:
-        for candidate in candidates:
-            scores[candidate].append(scores[candidate][-1])
-            status = states[candidate][-1]
-            if status == 'HOPEFUL':
-                status = 'ELECTED'
-            states[candidate].append(status)
-        wastage.append(wastage[-1])
-        total.append(total[-1])
-        threshold.append(threshold[-1])
 
     for i in actions:
         type_ = i["type"]
@@ -117,7 +104,7 @@ def vote_breakdown_table(election: Election):
         row.append((candidate.name,1,'standard'))
         row.append((states[key][0],1,"standard"))
         for i in range(rounds):
-            row.append((scores[key][0], 1, "float"))
+            row.append((scores[key][i], 1, "float"))
             if tiebreak[i] is not False:
                 if key == tiebreak[i][0]:
                     row.append((mark_safe('<i class="fas fa-check-circle"></i>'), 1, "standard"))
@@ -131,14 +118,14 @@ def vote_breakdown_table(election: Election):
                 row.append((states[key][i + 1], 1, "changed"))
 
         table.append(row)
-
+    table_footer = []
     footer1 = [("Wastage",1,'header'),("",1,'standard'),]
     for i in range(rounds):
         footer1.append((wastage[i],1,'float'))
         footer1.append(("",1,'standard'))
         if tiebreak[i] is not False:
             footer1.append(("", 1, 'standard'))
-    table.append(footer1)
+    table_footer.append(footer1)
 
     footer2 = [("Total Votes", 1, 'header'), ("", 1, 'standard'), ]
     for i in range(rounds):
@@ -146,7 +133,7 @@ def vote_breakdown_table(election: Election):
         footer2.append(("", 1, 'standard'))
         if tiebreak[i] is not False:
             footer2.append(("", 1, 'standard'))
-    table.append(footer2)
+    table_footer.append(footer2)
 
     footer3 = [("Threshold", 1, 'standard'), ("", 1, 'standard'), ]
     for i in range(rounds):
@@ -154,6 +141,6 @@ def vote_breakdown_table(election: Election):
         footer3.append(("", 1, 'standard'))
         if tiebreak[i] is not False:
             footer3.append(("", 1, 'standard'))
-    table.append(footer3)
+    table_footer.append(footer3)
 
-    return {'head':table_header, 'body':table}
+    return {'head':table_header, 'body':table, 'foot':table_footer}
