@@ -16,6 +16,7 @@
 {% block breadcrumbs_child %}Timetable{% endblock %}
 
 {% block body %}
+    {% if google_cals %}
     <div class="card mb-3">
         <h3 class="card-header">Subscribe to our calendar!</h3>
         <div class="card-body">
@@ -28,6 +29,7 @@
         </button>
         </div>
     </div>
+    {% endif %}
     {% spaceless %}
         {% for timetable in timetables %}
             <div class="card mb-3">
@@ -39,7 +41,7 @@
         {% endfor %}
     {% endspaceless %}
 
-
+    {% if google_cals %}
     <div class="modal" tabindex="-1" id="webcal_subscribe" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -58,6 +60,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block leftcontents %}
