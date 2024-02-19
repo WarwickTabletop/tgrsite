@@ -1,0 +1,20 @@
+{% load newsletter_tags %}
+{% latest_newsletter as newsletter %}
+
+{% if newsletter %}
+    <div class="card mb-3">
+        <h4 class="card-header">
+            Latest Newsletter
+        </h4>
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action" href="{% url "newsletters:newsletters_latest" %}">
+                    <span class="d-flex flex-column"><strong>{{ newsletter.title }}</strong>
+                    <small class="">
+                        posted {{ newsletter.pub_date|timesince }} ago by {% include "parts/render_member.html" with member=newsletter.author avatarless=True nolink=True %}
+                    </small>
+                    </span>
+                {{ newsletter.summary }}
+            </a>
+        </div>
+    </div>
+{% endif %}
