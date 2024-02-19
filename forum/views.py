@@ -58,11 +58,11 @@ class ViewSubforum(AccessMixin, SuccessMessageMixin, CreateView):
         current_forum = get_object_or_404(Forum, id=self.kwargs['forum'])
         # put pinned/stickied threads first
         threads = Thread.objects.filter(forum_id=self.kwargs['forum']).extra(
-            order_by=['-is_pinned', '-pub_date'])
+            order_by=['-is_pinned'])
         context.update({
             'current': current_forum,
             'forums': current_forum.get_subforums().order_by('sort_index'),
-            'threads': threads
+            'threads': sorted(threads, key=lambda s:(s.is_pinned, s.last_update()), reverse=True)
         })
         return context
 
