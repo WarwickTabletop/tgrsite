@@ -48,6 +48,8 @@ The website needs a few more steps to set up the database and your superuser acc
 
 ## Contributing
 Contributions welcome, in the form of issue submissions, pull requests, and comments.
-If you want to add a feature, fork and branch the repo, and create a pull request into `master`.
+If you want to add a feature, fork and branch the repo, and create a pull request into `main`.
+
+If you do contribute, please format your code in pep8 style. A tool like `autopep8` should be available for your IDE, which will do this for you.
 
 If you have a great idea for a feature, please create an issue for it! Feel free to discuss issues as well within comment threads, or on the Tabletop Society Discord.

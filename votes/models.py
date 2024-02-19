@@ -107,6 +107,7 @@ class STVPreference(models.Model):
 class STVResult(models.Model):
     election = models.OneToOneField(Election, on_delete=models.CASCADE)
     full_log = models.TextField()
+    action_log = models.JSONField(blank=True, null=True)  # Null for backwards compatability
     winners = models.ManyToManyField(Candidate)
     generated = models.DateTimeField(auto_now_add=True)
 

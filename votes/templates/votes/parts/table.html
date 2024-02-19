@@ -1,0 +1,51 @@
+<div class="table-responsive">
+    <table class="table table-bordered table-sm table-hover">
+        <thead>
+        {% for row in table.head %}
+            <tr>
+                {% for content,width,style in row %}
+                    {% if style == "header" %}
+                        <th colspan="{{ width }}">{{ content }}</th>
+                    {% else %}
+                        <td colspan="{{ width }}">{{ content }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </thead>
+        <tbody>
+        {% for row in table.body %}
+            <tr>
+                {% for content,width,style in row %}
+                    {% if style == "header" %}
+                        <th colspan="{{ width }}">{{ content }}</th>
+                    {% elif style == "changed" %}
+                        <td colspan="{{ width }}"><strong>{{ content }}</strong></td>
+                    {% elif style == "float" %}
+                        <td colspan="{{ width }}">{{ content|floatformat }}</td>
+                    {% else %}
+                        <td colspan="{{ width }}">{{ content }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+        {% for row in table.foot %}
+            <tr>
+                {% for content,width,style in row %}
+                    {% if style == "header" %}
+                        <th colspan="{{ width }}">{{ content }}</th>
+                    {% elif style == "changed" %}
+                        <td colspan="{{ width }}"><strong>{{ content }}</strong></td>
+                    {% elif style == "float" %}
+                        <td colspan="{{ width }}">{{ content|floatformat }}</td>
+                    {% else %}
+                        <td colspan="{{ width }}">{{ content }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tfoot>
+    </table>
+</div>

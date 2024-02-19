@@ -1,8 +1,8 @@
 import secrets
 from enum import Enum
 from fractions import Fraction
-from operator import itemgetter, attrgetter
-from typing import Dict, List, Tuple, Set
+from operator import attrgetter, itemgetter
+from typing import Dict, List, Set, Tuple
 
 """
 STV calculator
@@ -25,8 +25,7 @@ class States(Enum):
     DEFEATED = 3
 
     def __repr__(self):
-        return "<%s: %r>" % (
-            self._name_, self._value_)
+        return "<%s: %r>" % (self._name_, self._value_)
 
     def __str__(self):
         return "%s" % (self._name_)
@@ -51,13 +50,13 @@ class Vote:
 
     def check(self, candidates: Set[int]):
         if len(self.prefs) != len(set(self.prefs)):
-            raise ElectionError(f'Double Vote [{self.prefs}]')
+            raise ElectionError(f"Double Vote [{self.prefs}]")
         for i in self.prefs:
             if i not in candidates:
-                raise ElectionError(f'Unknown Candidate [{self.prefs}]')
+                raise ElectionError(f"Unknown Candidate [{self.prefs}]")
 
     def __str__(self):
-        return '(' + (', '.join(map(lambda x: str(x.id_), self.prefs))) + ')'
+        return "(" + (", ".join(map(lambda x: str(x.id_), self.prefs))) + ")"
 
     def __repr__(self):
         return "Vote" + self.__str__()
@@ -71,6 +70,7 @@ class Election:
         self.seats = seats
         self.rounds = 0
         self.fulllog = []
+        self.actlog = []
         print(candidates, votes, seats)
         # Huge initial value
         # (surplus should never be this high in our situation (its more votes than there are people in the world))
@@ -89,6 +89,7 @@ class Election:
     def round(self):
         self.rounds += 1
         # B1
+        shortcircuit = False
         electable = []
         for candidate in self.candidates:
             if candidate.status == States.ELECTED or candidate.status == States.HOPEFUL:
@@ -96,8 +97,7 @@ class Election:
         if len(electable) <= self.seats:
             for i in electable:
                 i.status = States.ELECTED
-            self._report()
-            raise StopIteration('Election Finished')
+            shortcircuit = True
 
         # B2a
         wastage = Fraction(0)
@@ -116,6 +116,12 @@ class Election:
         # B2b
         quota = Fraction(sum(scores.values()), self.seats + 1)
 
+        if shortcircuit:
+            # Defer shortcircuit until after scores calculated to log one extra line
+            self._log(scores, wastage, quota)
+            self._report()
+            raise StopIteration("Election Finished")
+
         # B2c
         elected = False
         for candidate in self.candidates:
@@ -132,16 +138,19 @@ class Election:
         # B2e
         if elected:
             self.previous_surplus = surplus
-            self._log(scores, wastage)
+            self._log(scores, wastage, quota)
             return
 
         if surplus == 0 or surplus >= self.previous_surplus:
             # B3
-            sorted_results = sorted(filter(
-                lambda x: x[0].status == States.HOPEFUL, scores.items()), key=itemgetter(1))
+            sorted_results = sorted(
+                filter(lambda x: x[0].status == States.HOPEFUL, scores.items()),
+                key=itemgetter(1),
+            )
             min_score = sorted_results[0][1]
             eliminated_candidate: Candidate = self._choose(
-                list(filter(lambda x: x[1] <= min_score + surplus, sorted_results)))
+                list(filter(lambda x: x[1] <= min_score + surplus, sorted_results))
+            )
             eliminated_candidate.status = States.DEFEATED
             eliminated_candidate.keep_factor = Fraction(0)
         else:
@@ -149,9 +158,10 @@ class Election:
             for candidate in self.candidates:
                 if candidate.status == States.ELECTED:
                     candidate.keep_factor = Fraction(
-                        candidate.keep_factor * quota, scores[candidate])
+                        candidate.keep_factor * quota, scores[candidate]
+                    )
         self.previous_surplus = surplus
-        self._log(scores, wastage)
+        self._log(scores, wastage, quota)
 
     def _choose(self, candidates):
         if len(candidates) > 1:
@@ -159,43 +169,72 @@ class Election:
             self._addlog("-Tiebreak-")
             self._addlog(a)
             self._addlog()
+            self._addaction("tiebreak",
+                            {'round': self.rounds, 'candidates': [str(candidate[0].id) for candidate in candidates],
+                             'choice': str(a.id)})
         else:
             a = candidates[0][0]
         return a
+
+    def _addaction(self, type, details):
+        self.actlog.append({'type': type, 'details': details})
 
     def _addlog(self, *args):
         string = " ".join(map(str, args))
         self.fulllog.append(string)
         print(string)
 
-    def _log(self, scores, wastage):
+    def _log(self, scores, wastage, quota):
         self._addlog(self.rounds)
         self._addlog("======")
+        candstates = {}
         for i in self.candidates:
             assert isinstance(i, Candidate)
-            self._addlog("Candidate:", i.id,
-                         i.keep_factor.limit_denominator(1000))
+            self._addlog("Candidate:", i.id, i.keep_factor.limit_denominator(1000))
             self._addlog("Status:", str(i.status))
             self._addlog("Votes:", str(scores[i].limit_denominator(1000)))
             self._addlog()
+            candstates[str(i.id)] = {"keep_factor": float(i.keep_factor.limit_denominator(1000)),
+                                     'status': str(i.status), 'votes': float(scores[i].limit_denominator(1000))}
         self._addlog("Wastage:", str(wastage.limit_denominator(1000)))
+        self._addlog("Threshold:", str(quota.limit_denominator(1000)))
         self._addlog()
+
+        self._addaction("round", {'round': self.rounds, 'candidates': candstates,
+                                  'wastage': float(wastage.limit_denominator(1000)),
+                                  'threshold': float(quota.limit_denominator(1000))})
 
     def _report(self):
         self._addlog("**Election Results**")
         self._addlog()
+        candstates = {"ELECTED": [], "DEFEATED": [], "WITHDRAWN": []}
         self._addlog("ELECTED")
         for i in filter(lambda x: x.status == States.ELECTED, self.candidates):
             self._addlog(" Candidate", i.id)
+            candstates["ELECTED"].append(str(i.id))
         self._addlog("DEFEATED")
         for i in filter(lambda x: x.status == States.DEFEATED, self.candidates):
             self._addlog(" Candidate", i.id)
+            candstates["DEFEATED"].append(str(i.id))
         self._addlog("WITHDRAWN")
         for i in filter(lambda x: x.status == States.WITHDRAWN, self.candidates):
             self._addlog(" Candidate", i.id)
+            candstates["WITHDRAWN"].append(str(i.id))
         self._addlog()
+        self._addaction("report", candstates)
 
     def full_election(self):
+        # Log initial state
+        scores = {k: Fraction(0) for k in self.candidates}
+        wastage = Fraction(0)
+        for vote in self.votes:
+            if len(vote.prefs) > 0:
+                scores[vote.prefs[0]] += 1
+            else:
+                wastage += 1
+        quota = Fraction(sum(scores.values()), self.seats + 1)
+        self._log(scores, wastage, quota)
+
         try:
             while True:
                 self.round()
@@ -203,7 +242,10 @@ class Election:
             pass
 
     def winners(self):
-        return map(attrgetter('id'), filter(lambda x: x.status == States.ELECTED, self.candidates))
+        return map(
+            attrgetter("id"),
+            filter(lambda x: x.status == States.ELECTED, self.candidates),
+        )
 
 
 def fptp_equivalent():
@@ -215,8 +257,7 @@ def fptp_equivalent():
 
 def immediate_majority():
     c = {1, 2, 3, 4}
-    v = [(1, 2, 3, 4)] * 9 + [(2, 3, 1, 4)] * \
-        4 + [(3, 1, 4, 2)] * 3 + [(4, 1)] * 2
+    v = [(1, 2, 3, 4)] * 9 + [(2, 3, 1, 4)] * 4 + [(3, 1, 4, 2)] * 3 + [(4, 1)] * 2
     e = Election(c, v, 1)
     e.full_election()
 
@@ -230,24 +271,39 @@ def delayed_majority():
 
 def delayeder_majority():
     c = {1, 2, 3, 4}
-    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * \
-        5 + [(2, 1, 4, 3)] + [(1, 4, 2, 3)]
+    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * 5 + [(2, 1, 4, 3)] + [(1, 4, 2, 3)]
     e = Election(c, v, 1)
     e.full_election()
 
 
 def two_available_three():
     c = {1, 2, 3}
-    v = [(1, 2, 3), (1, 3, 2), (2,), (3, 1), (3, 1), (1, 2, 3), (2,), (1, 3, 2), (1, 3, 2), (1, 3, 2), (1, 3, 2),
-         (1, 3, 2), ]
+    v = [
+        (1, 2, 3),
+        (1, 3, 2),
+        (2,),
+        (3, 1),
+        (3, 1),
+        (1, 2, 3),
+        (2,),
+        (1, 3, 2),
+        (1, 3, 2),
+        (1, 3, 2),
+        (1, 3, 2),
+        (1, 3, 2),
+    ]
     e = Election(c, v, 2)
     e.full_election()
 
 
 def two_available_four():
     c = {1, 2, 3, 4}
-    v = [(4, 2, 1, 3)] * 4 + [(3, 2, 4, 1)] * 5 + \
-        [(2, 1, 4, 3)] * 3 + [(1, 4, 2, 3)] * 2
+    v = (
+            [(4, 2, 1, 3)] * 4
+            + [(3, 2, 4, 1)] * 5
+            + [(2, 1, 4, 3)] * 3
+            + [(1, 4, 2, 3)] * 2
+    )
     e = Election(c, v, 2)
     e.full_election()
 
@@ -273,5 +329,5 @@ def malformed2():
     e.full_election()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     delayed_majority()

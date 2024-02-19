@@ -37,7 +37,7 @@ class STVVoteAdmin(admin.ModelAdmin):
 
 
 class STVResultAdmin(admin.ModelAdmin):
-    readonly_fields = ['election', 'full_log', 'winners', 'generated']
+    readonly_fields = ['election', 'full_log', 'winners', 'generated', "action_log"]
 
 
 class ElectionAdmin(admin.ModelAdmin):

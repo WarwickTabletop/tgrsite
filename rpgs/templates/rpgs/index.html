@@ -48,8 +48,8 @@
 {% endblock %}
 {% block body %}
     {% if request.user.is_authenticated %}
-        <p><a href="{% url 'rpgs:create' %}">
-            <button class="btn btn-block btn-success">Create event</button>
+        <p><a class="btn btn-block btn-success" href="{% url 'rpgs:create' %}">
+            Create event
         </a></p>
     {% endif %}
 

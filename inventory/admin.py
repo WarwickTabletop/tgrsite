@@ -23,6 +23,7 @@ class RecordAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     list_display = ("name", "quantity", "owner", "inventory")
     list_filter = ("inventory",)
+    autocomplete_fields = ("owner",)
 
 
 class SuggestionAdmin(admin.ModelAdmin):
