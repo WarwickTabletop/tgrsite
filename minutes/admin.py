@@ -11,6 +11,7 @@ class FolderAdmin(admin.ModelAdmin):
 class MeetingAdmin(admin.ModelAdmin):
     list_display = ("title", "folder")
     list_filter = ("folder",)
+    autocomplete_fields = ("author",)
 
 
 admin.site.register(Folder, FolderAdmin)

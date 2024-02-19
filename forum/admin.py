@@ -3,9 +3,11 @@ from django.contrib import admin
 from .models import Thread, Response, Forum
 
 
-class ThreadInline(admin.TabularInline):
+class ThreadInline(admin.StackedInline):
     model = Thread
     extra = 0
+    autocomplete_fields = ('author',)
+    fields = ('title', 'body', 'pub_date', 'is_pinned', 'is_locked', 'author')
 
 
 class ForumInline(admin.TabularInline):
@@ -22,11 +24,13 @@ class ThreadAdmin(admin.ModelAdmin):
     inlines = [ResponseInline]
     list_display = ('title', 'body', 'get_author',)
     list_filter = ['pub_date', 'forum']
+    autocomplete_fields = ('author',)
 
 
 class ResponseAdmin(admin.ModelAdmin):
     model = Response
     list_display = ('body', 'get_author',)
+    autocomplete_fields = ('author',)
 
 
 class ForumAdmin(admin.ModelAdmin):
