@@ -5,7 +5,7 @@
         <a href="{% url 'forum:viewthread' thread.id %}" class="list-group-item list-group-item-action flex-column">
             <span class="d-flex flex-column flex-sm-row justify-content-between align-items-baseline">
                 <strong>{% if thread.is_pinned %}<i class="fas fa-thumbtack"></i> {% endif%}{% if thread.is_locked %}<i class="fas fa-lock"></i> {% endif%}{{ thread.title }}</strong>
-                <span class="text-muted text-right flex-sm-shrink-0 ml-sm-2">{{ thread.pub_date|timesince }} ago</span>
+                <span class="text-muted text-right flex-sm-shrink-0 ml-sm-2">{{ thread.last_update|timesince }} ago</span>
             </span>
             <span class="d-flex flex-column flex-sm-row justify-content-between align-items-baseline">
                 {% if not userless %}{% include "parts/render_member.html" with member=thread.author nolink=True short=True %}

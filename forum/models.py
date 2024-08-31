@@ -126,6 +126,12 @@ class Thread(models.Model):
     def get_response_count(self):
         return Response.objects.filter(thread=self.id).count()
 
+    def last_update(self):
+        try:
+            return self.response_set.latest('pub_date').pub_date
+        except Response.DoesNotExist as e:
+            return self.pub_date
+
     def get_all_authors(self):
         authors = [x.author for x in self.response_set.all()]
         authors.append(self.author)
@@ -148,7 +154,7 @@ class Response(models.Model):
 
     def __str__(self):
         # TODO: probably strip markdown
-        return self.body
+        return f"{self.thread}: {self.author}"
 
     def get_author(self):
         return Member.objects.get(id=self.author.id)
