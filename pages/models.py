@@ -60,7 +60,9 @@ class BreadcrumbParents(models.Model):
 class Widget(models.Model):
     POSTER = 0
     EVENTS = 1
-    WIDGETS = ((POSTER, "Event Poster"), (EVENTS, "Upcoming Events"))
+    NEWSLETTER = 2
+    MINUTES = 3
+    WIDGETS = ((POSTER, "Event Poster"), (EVENTS, "Upcoming Events"), (NEWSLETTER, "Latest Newsletter"), (MINUTES,"Latest Meeting Minutes"))
     type = models.SmallIntegerField(
         choices=WIDGETS, help_text='Add sidebar widgets you want to appear on this page')
     page = models.ForeignKey(

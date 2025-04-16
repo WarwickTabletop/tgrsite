@@ -1,0 +1,18 @@
+{% load meeting_tags %}
+{% latest_minutes as meeting %}
+
+{% if meeting %}
+    <div class="card mb-3">
+        <h4 class="card-header">
+            Latest Exec Meeting
+        </h4>
+        <div class="list-group list-group-flush">
+            <a class="list-group-item list-group-item-action" href="{% url "minutes:index" %}">
+                <span class="d-flex flex-column"><strong>{{ meeting.title }}</strong>
+                    <small>held {{ meeting.date|timesince }} ago</small>
+                </span>
+                {{ newsletter.summary }}
+            </a>
+        </div>
+    </div>
+{% endif %}

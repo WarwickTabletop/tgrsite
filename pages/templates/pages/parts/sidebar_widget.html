@@ -1,8 +1,12 @@
 <div class="{% if widget.wide %}d-none d-md-block{% else %}{% endif %}">
     {% if widget.type == widget.POSTER %}
         {% include "timetable/parts/widgets/poster_widget.html" %}
-    {% elif wiget.type == widget.EVENT %}
+    {% elif widget.type == widget.EVENT %}
         {% include "timetable/parts/widgets/event_widget.html" %}
+    {% elif widget.type == widget.NEWSLETTER %}
+        {% include "newsletters/parts/widgets/latest_widget.html" %}
+    {% elif widget.type == widget.MINUTES %}
+        {% include "minutes/parts/widgets/latest_widget.html" %}
     {% else %}
         <p class="text-muted">Invalid Widget Specified</p>
     {% endif %}
