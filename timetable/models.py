@@ -49,7 +49,7 @@ class Event(models.Model):
 class Booking(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     week = models.ForeignKey(Week, on_delete=models.CASCADE)
-    room = models.CharField(max_length=100)
+    room = models.CharField(max_length=1000)
 
     def __str__(self):
         return str(self.week) + ": " + str(self.event)
