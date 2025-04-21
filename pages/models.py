@@ -62,7 +62,7 @@ class Widget(models.Model):
     EVENTS = 1
     NEWSLETTER = 2
     MINUTES = 3
-    WIDGETS = ((POSTER, "Event Poster"), (EVENTS, "Upcoming Events"), (NEWSLETTER, "Latest Newsletter"), (MINUTES,"Latest Meeting Minutes"))
+    WIDGETS = ((POSTER, "Event Poster"), (EVENT, "Upcoming Events"), (NEWSLETTER, "Latest Newsletter"), (MINUTES,"Latest Meeting Minutes"))
     type = models.SmallIntegerField(
         choices=WIDGETS, help_text='Add sidebar widgets you want to appear on this page')
     page = models.ForeignKey(
