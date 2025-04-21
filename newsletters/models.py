@@ -11,7 +11,7 @@ class Newsletter(models.Model):
         ("images/newsletter_banner_3.png", "2020-21"),
         ("images/newsletter_banner21-22.png", "2021-22"),
         ("images/newsletter_banner24-25.png", "2024-25"),
-        ("images/newsletter_banner25-26.png", "2025-26"),
+        #("images/newsletter_banner25-26.png", "2025-26"),
     )
     title = models.CharField(max_length=256)
     body = models.TextField()
