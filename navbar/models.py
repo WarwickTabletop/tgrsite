@@ -6,7 +6,7 @@ from .validators import LocalableURLField
 # Create your models here.
 class Nav(models.Model):
     sort_index = models.IntegerField(default=0)
-    text = models.CharField(max_length=15)
+    text = models.CharField(max_length=16)
     icon = models.CharField(max_length=50,
                             validators=(validators.RegexValidator("^fa-", message="Please ensure that the icon name "
                                                                                   "includes the fa- prefix"),
