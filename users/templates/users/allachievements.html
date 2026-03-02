@@ -7,7 +7,7 @@
 {% block body %}
     <p>{% if is_yours %}<strong>You</strong> have{% else %}<strong>{{name}}</strong> has{% endif %}
         achieved {{achievement_count}} out of {{achievement_total}} possible achievements!</p>
-    <p>If you believe that {% if is_yours %}you{% else %}{{name}}{% endif %} should have an achievement but it's not here, contact the Web Admin.</p>
+    <p>If you believe that {% if is_yours %}you{% else %}{{name}}{% endif %} should have an achievement but it's not here, contact the Tech Officer.</p>
     <p>Try to catch them all!</p>
     {% include "users/achievements.html" with achievements=achievements %}
 {% endblock %}
