@@ -203,7 +203,7 @@ class VerifyRequest(LoginRequiredMixin, FormView):
             if members[uni_id] == "":
                 add_message(self.request, messages.SUCCESS,
                             "Unable to send you a verification link. "
-                            "Please contact the Web Admin to manually verify your membership.")
+                            "Please contact the Tech Officer to manually verify your membership.")
             else:
                 v = VerificationRequest.objects.create(member=self.request.user.member,
                                                        uni_id=uni_id, uni_email=members[uni_id])
@@ -259,7 +259,7 @@ class VerifyConfirm(View):
                 v.member.verifications.all().delete()
                 add_message(request, messages.ERROR,
                             "Verification Failed. User is already associated with that ID. "
-                            "Please contact the web admin if this is not you.")
+                            "Please contact the Tech Officer if this is not you.")
             else:
                 m, _ = Membership.objects.get_or_create(member=v.member)
                 m.uni_id = v.uni_id
