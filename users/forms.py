@@ -66,7 +66,7 @@ class SignupForm(ModelForm):
                                help_text="These can be customised from your profile after signup.",
                                label="Initial Email Preferences", widget=RadioSelect())
     captcha = CharField(
-        max_length=32, label="Something went wrong generating a captcha. Please contact the web admin")
+        max_length=32, label="Something went wrong generating a captcha. Please contact the Tech Officer")
     captcha_token = CharField(widget=HiddenInput)
 
     class Meta:
