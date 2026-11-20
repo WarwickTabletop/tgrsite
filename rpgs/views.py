@@ -66,7 +66,7 @@ class Index(generic.ListView):
         else:
             queryset = queryset.filter(full__exact=0)
 
-        return queryset.order_by('published', '-pinned', 'full', '-created_at')
+        return queryset.order_by('published', '-pinned', '-created_at', 'full')
 
 
 class Detail(UserPassesTestMixin, generic.DetailView):
