@@ -1,5 +1,5 @@
 <div class="list-group">
-    {% for loan in loans %}
+    {% for loan in loans reversed %}
         <a href="{% url "inventory:loan_detail" inv=inv.canonical_ pk=loan.id %}"
            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <span class="mr-sm-3">{% comment %} State Icon {% endcomment %}
